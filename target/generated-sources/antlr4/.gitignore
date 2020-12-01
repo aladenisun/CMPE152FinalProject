@@ -1,0 +1,21 @@
+/Purrscal.interp
+/Purrscal.tokens
+/PurrscalBaseVisitor.cpp
+/PurrscalBaseVisitor.h
+/PurrscalLexer.cpp
+/PurrscalLexer.h
+/PurrscalLexer.interp
+/PurrscalLexer.tokens
+/PurrscalParser.cpp
+/PurrscalParser.h
+/PurrscalVisitor.cpp
+/PurrscalVisitor.h
+/Purrscal 2.tokens
+/PurrscalBaseVisitor 2.cpp
+/PurrscalBaseVisitor 2.h
+/PurrscalLexer 2.cpp
+/PurrscalLexer 2.tokens
+/PurrscalParser 2.cpp
+/PurrscalParser 2.h
+/PurrscalVisitor 2.cpp
+/PurrscalVisitor 2.h

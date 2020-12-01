@@ -1,0 +1,158 @@
+#ifndef SEMANTICS_H_
+#define SEMANTICS_H_
+
+#include <map>
+
+#include "PurrscalBaseVisitor.h"
+#include "antlr4-runtime.h"
+
+#include "intermediate/symtab/SymtabStack.h"
+#include "intermediate/symtab/SymtabEntry.h"
+#include "intermediate/symtab/Predefined.h"
+#include "intermediate/type/Typespec.h"
+#include "intermediate/util/BackendMode.h"
+#include "SemanticErrorHandler.h"
+
+namespace frontend {
+
+using namespace std;
+using namespace intermediate::symtab;
+using namespace intermediate::type;
+
+class Semantics : public PurrscalBaseVisitor
+{
+private:
+    BackendMode mode;
+    SymtabStack *symtabStack;
+    SymtabEntry *purrgramId;
+    SemanticErrorHandler error;
+
+    map<string, Typespec *> *typeTable;
+
+    /**
+     * Return the number of values in a datatype.
+     * @param type the datatype.
+     * @return the number of values.
+     */
+    int typeCount(Typespec *type);
+
+    /**
+     * Determine whether or not an expression is a variable only.
+     * @param exprCtx the ExpressionContext.
+     * @return true if it's an expression only, else false.
+     */
+    bool demandIsVariable(PurrscalParser::DemandContext *exprCtx);
+
+    /**
+     * Perform semantic operations on procedure and function call arguments.
+     * @param listCtx the ArgumentListContext.
+     * @param parameters the vector of parameters to fill.
+     */
+
+    void checkCallChirps(PurrscalParser::ChirpsContext *listCtx, vector<SymtabEntry *> *parms);
+
+    /**
+     * Determine the datatype of a variable that can have modifiers.
+     * @param varCtx the VariableContext.
+     * @param varType the variable's datatype without the modifiers.
+     * @return the datatype with any modifiers.
+     */
+    Typespec *kittenDatatype(PurrscalParser::KittenContext *varCtx, Typespec *varType);
+
+    /**
+     * Create a new record type.
+     * @param recordTypeSpecCtx the RecordTypespecContext.
+     * @param recordTypeName the name of the record type.
+     * @return the symbol table entry of the record type identifier.
+     */
+//    SymtabEntry *createRecordType(
+//                        PurrscalParser::RecordTypespecContext *recordTypeSpecCtx,
+//                        string recordTypeName);
+
+    /**
+     * Create the fully qualified type pathname of a record type.
+     * @param recordType the record type.
+     * @return the pathname.
+     */
+//    string createRecordTypePath(Typespec *recordType);
+
+    /**
+     * Create the symbol table for a record type.
+     * @param ctx the RecordFieldsContext,
+     * @param ownerId the symbol table entry of the owner's identifier.
+     * @return the symbol table.
+     */
+//    Symtab *createRecordSymtab(
+//                PurrscalParser::RecordFieldsContext *ctx, SymtabEntry *ownerId);
+
+public:
+    Semantics(BackendMode mode) : mode(mode), purrgramId(nullptr)
+    {
+        // Create and initialize the symbol table stack.
+        symtabStack = new SymtabStack();
+        Predefined::initialize(symtabStack);
+
+        typeTable = new map<string, Typespec *>();
+        (*typeTable)["integer"] = Predefined::integerType;
+        (*typeTable)["real"]    = Predefined::realType;
+        (*typeTable)["boolean"] = Predefined::booleanType;
+        (*typeTable)["char"]    = Predefined::charType;
+        (*typeTable)["string"]  = Predefined::stringType;
+    }
+
+    /**
+     * Get the symbol table entry of the program identifier.
+     * @return the entry.
+     */
+    SymtabEntry *getProgramId() { return purrgramId; }
+
+    /**
+     * Get the count of semantic errors.
+     * @return the count.
+     */
+    int getErrorCount() const { return error.getCount(); }
+
+    /**
+     * Return the default value for a given datatype.
+     * @param type the datatype.
+     */
+    static Object defaultValue(Typespec *type);
+
+    Object visitPurrgram(PurrscalParser::PurrgramContext *ctx) override;
+    Object visitPurrgramSnoot(PurrscalParser::PurrgramSnootContext *ctx) override;
+    Object visitDomesticBody(PurrscalParser::DomesticBodyContext *ctx) override;
+    Object visitDomestic(PurrscalParser::DomesticContext *ctx) override;
+    Object visitBreedBody(PurrscalParser::BreedBodyContext *ctx) override;
+    Object visitChonkTypespec(PurrscalParser::ChonkTypespecContext *ctx) override;
+    Object visitKittyBreedTypsec(PurrscalParser::KittyBreedTypsecContext *ctx) override;
+    Object visitKittyBreed(PurrscalParser::KittyBreedContext *ctx) override;
+    Object visitFluffballTypespec(PurrscalParser::FluffballTypespecContext *ctx) override;
+    Object visitKittenKaboodleTypespec(PurrscalParser::KittenKaboodleTypespecContext *ctx) override;
+//    Object visitArrayTypespec(PurrscalParser::ArrayTypespecContext *ctx) override;
+    Object visitKittenBody(PurrscalParser::KittenBodyContext *ctx) override;
+    Object visitCallBody(PurrscalParser::CallBodyContext *ctx) override;
+    Object visitPurrameterPurrs(PurrscalParser::PurrameterPurrsContext *ctx) override;
+    Object visitPurrameterPurr(PurrscalParser::PurrameterPurrContext *ctx) override;
+    Object visitHungryMew(PurrscalParser::HungryMewContext *ctx) override;
+    Object visitLps(PurrscalParser::LpsContext*ctx) override;
+    Object visitSniffMew(PurrscalParser::SniffMewContext *ctx) override;
+    Object visitHowlMew(PurrscalParser::HowlMewContext*ctx) override;
+    Object visitPurrMew(PurrscalParser::PurrMewContext*ctx) override;
+    Object visitYowlCallMew(PurrscalParser::YowlCallMewContext*ctx) override;
+    Object visitBlepCallExpectation(PurrscalParser::BlepCallExpectationContext *ctx) override;
+    Object visitDemand(PurrscalParser::DemandContext *ctx) override;
+    Object visitChonkDemand(PurrscalParser::ChonkDemandContext *ctx) override;
+    Object visitTrill(PurrscalParser::TrillContext *ctx) override;
+    Object visitKittenExpectation(PurrscalParser::KittenExpectationContext*ctx) override;
+    Object visitKitten(PurrscalParser::KittenContext*ctx) override;
+    Object visitKittenKitty(PurrscalParser::KittenKittyContext*ctx) override;
+    Object visitFelineExpectation(PurrscalParser::FelineExpectationContext *ctx) override;
+    Object visitThreadExpectation(PurrscalParser::ThreadExpectationContext *ctx) override;
+    Object visitYarnExpectation(PurrscalParser::YarnExpectationContext *ctx) override;
+    Object visitRollExpectation(PurrscalParser::RollExpectationContext*ctx) override;
+    Object visitParenthesizedExpectation(PurrscalParser::ParenthesizedExpectationContext *ctx) override;
+};
+
+} // namespace frontend
+
+#endif /* SEMANTICS_H_ */

@@ -1,0 +1,54 @@
+Terminologies
+-  demand = Expression 
+-  mew = Statement
+-  expectation = Factor 
+- trill = Term 
+- stalkMew = readStatement
+- pounceMew = readlnStatement
+- mrowus = readArguments
+- chirps = Argument list
+- chirp = argument
+- kaboodle = array type
+- Snoot = heading
+- KITTY - IDENTIFIER
+- fur - sign
+- Threadball - characterConstant
+- Yarn ball - stringConstant
+- fluffball - enumerationType
+- chonk - simpletype
+- kittenKaboodle - subrangeType
+- Kitten - variable
+-  callQuality - routinesPart
+- callBodies - routineDefinition
+-  sniffMew - if statement
+- pawMew = trueStatement
+- ignoreMew - falseStatement
+- HOWL - repeat
+- PURR - then
+- Purrmew - while Statement
+- Howlmew - repeat statement
+- Beep - function
+- Yowl - procedure
+- feline - number
+- hairlessFeline - unsignedNumber
+- sphynxDomestic - Integerconstant
+- SPHYNX - INTEGER
+- hairlessFelineDomestic - real constant
+- HAIRLESS_FELINE - REAL (as in real number)
+-  meowMew - write stat
+- mrrrMew - writtln stat
+-  meows  - write args
+-  Meow - write arg
+-  chungusWidth - fieldwidth
+-  toeBeanPlaces - decimal places
+- stalkMew  - read stat
+- pounceMew  - readln stat
+- mrowus    - read args
+- Cat - block
+- Cat qualities - declarations
+- theBigMew - compound statement
+- Domestic = constant
+- relationalWhisker - relOp
+- additiveWhisker - add
+- multiplicativeWhisker - multiply
+- blankStare - empty Statement
