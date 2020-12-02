@@ -20,51 +20,51 @@ public:
      * Emit code for an expression.
      * @param ctx the ExpressionContext.
      */
-    void emitExpression(PurrscalParser::ExpressionContext *ctx);
+    void emitExpression(PurrscalParser::DemandContext *ctx);
 
     /**
      * Emit code for a simple expression.
-     * @param ctx the SimpleExpressionContext.
+     * @param ctx the ChonkDemandContext.
      */
-    void emitSimpleExpression(PurrscalParser::SimpleExpressionContext *ctx);
+    void emitSimpleExpression(PurrscalParser::ChonkDemandContext *ctx);
 
     /**
      * Emit code for a term.
      * @param ctx the TermContext.
      */
-    void emitTerm(PurrscalParser::TermContext *ctx);
+    void emitTerm(PurrscalParser::TrillContext *ctx);
 
     /**
      * Emit code for NOT.
-     * @param ctx the NotFactorContext.
+     * @param ctx the RollExpectationContext.
      */
-    void emitNotFactor(PurrscalParser::NotFactorContext *ctx);
+    void emitNotFactor(PurrscalParser::RollExpectationContext *ctx);
 
     /**
      * Emit code to load a scalar variable's value
      * or a structured variable's address.
      * @param ctx the VariableContext.
      */
-    void emitLoadValue(PurrscalParser::VariableContext *varCtx);
+    void emitLoadValue(PurrscalParser::KittenContext *varCtx);
 
     /**
      * Emit code to load a scalar variable's value
      * or a structured variable's address.
      * @param variableNode the variable node.
      */
-    Typespec *emitLoadVariable(PurrscalParser::VariableContext *varCtx);
+    Typespec *emitLoadVariable(PurrscalParser::KittenContext *varCtx);
 
     /**
      * Emit code to load an integer constant.
      * @parm intCtx the IntegerConstantContext.
      */
-    void emitLoadIntegerConstant(PurrscalParser::NumberContext *intCtx);
+    void emitLoadIntegerConstant(PurrscalParser::FelineContext *intCtx);
 
     /**
      * Emit code to load real constant.
      * @parm intCtx the IntegerConstantContext.
      */
-    void emitLoadRealConstant(PurrscalParser::NumberContext *realCtx);
+    void emitLoadRealConstant(PurrscalParser::FelineContext *realCtx);
 
 private:
 
@@ -78,7 +78,7 @@ private:
      * @return the type of the element.
      */
     Typespec *emitLoadArrayElementAccess(
-                                    PurrscalParser::IndexListContext *indexListCtx,
+                                    PurrscalParser::IndicesContext *indexListCtx,
                                     Typespec *elmtType, bool lastModifier);
 
     /**
@@ -87,17 +87,7 @@ private:
      */
     void emitLoadArrayElementValue(Typespec *elmtType);
 
-    void emitLoadRecordFieldValue(
-                    PurrscalParser::FieldContext *fieldCtx, Typespec *recordType);
 
-    /**
-     * Emit code to load the address or value of a record field.
-     * @param fieldCtx the FieldContext.
-     * @param last true if this is the variable's last field, else false.
-     * @return the type of the field.
-     */
-    Typespec *emitLoadRecordField(
-                    PurrscalParser::FieldContext *fieldCtx, Typespec *recordType);
 };
 
 }} // namespace backend::compiler

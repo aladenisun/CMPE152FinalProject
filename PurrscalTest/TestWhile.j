@@ -53,7 +53,7 @@
 	iconst_1
 	putstatic	TestWhile/i I
 ;
-; 008 whilei<=5dobeginmrrow('i = ',i);i:=i+1end
+; 008 whilei<=5purrplaymrrr('i = ',i);i:=i+1nap
 ;
 L001:
 	getstatic	TestWhile/i I
@@ -66,7 +66,7 @@ L003:
 L004:
 	ifeq	L002
 ;
-; 009 mrrow('i = ',i)
+; 009 mrrr('i = ',i)
 ;
 	getstatic	java/lang/System/out Ljava/io/PrintStream;
 	ldc	"i = %d\n"
@@ -89,7 +89,7 @@ L004:
 	goto	L001
 L002:
 ;
-; 013 mrrow
+; 013 mrrr
 ;
 	getstatic	java/lang/System/out Ljava/io/PrintStream;
 	invokevirtual	java/io/PrintStream.println()V
@@ -99,7 +99,7 @@ L002:
 	iconst_1
 	putstatic	TestWhile/i I
 ;
-; 016 whilei<=5dobeginj:=10;whilej<=30dobeginmrrow('i = ',i,', j = ',j);j:=j ...
+; 016 whilei<=5purrplayj:=10;whilej<=30purrplaymrrr('i = ',i,', j = ',j);j:= ...
 ;
 L005:
 	getstatic	TestWhile/i I
@@ -117,7 +117,7 @@ L008:
 	bipush	10
 	putstatic	TestWhile/j I
 ;
-; 019 whilej<=30dobeginmrrow('i = ',i,', j = ',j);j:=j+10end
+; 019 whilej<=30purrplaymrrr('i = ',i,', j = ',j);j:=j+10nap
 ;
 L009:
 	getstatic	TestWhile/j I
@@ -130,7 +130,7 @@ L011:
 L012:
 	ifeq	L010
 ;
-; 020 mrrow('i = ',i,', j = ',j)
+; 020 mrrr('i = ',i,', j = ',j)
 ;
 	getstatic	java/lang/System/out Ljava/io/PrintStream;
 	ldc	"i = %d, j = %d\n"

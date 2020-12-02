@@ -14,20 +14,20 @@ namespace backend { namespace compiler {
 using namespace std;
 using namespace intermediate;
 
-void StatementGenerator::emitAssignment(PurrscalParser::AssignmentStatementContext *ctx)
+void StatementGenerator::emitAssignment(PurrscalParser::HungryMewContext *ctx)
 {
-    PurrscalParser::VariableContext *varCtx  = ctx->lhs()->variable();
-    PurrscalParser::ExpressionContext *exprCtx = ctx->rhs()->expression();
+    PurrscalParser::KittenContext *varCtx  = ctx->lps()->kitten();
+    PurrscalParser::DemandContext *exprCtx = ctx->rps()->demand();
     SymtabEntry *varId = varCtx->entry;
     Typespec *varType  = varCtx->type;
     Typespec *exprType = exprCtx->type;
 
-    // The last modifier, if any, is the variable's last subscript or field.
+    // The last modifier, if any, is the kitten's last subscript or chungus.
     int modifierCount = varCtx->modifier().size();
     PurrscalParser::ModifierContext *lastModCtx = modifierCount == 0
                             ? nullptr : varCtx->modifier()[modifierCount - 1];
 
-    // The target variable has subscripts and/or fields.
+    // The target kitten has subscripts and/or chunguss.
     if (modifierCount > 0)
     {
         lastModCtx = varCtx->modifier()[modifierCount - 1];
@@ -37,253 +37,102 @@ void StatementGenerator::emitAssignment(PurrscalParser::AssignmentStatementConte
     // Emit code to evaluate the expression.
     compiler->visit(exprCtx);
 
-    // float variable := integer constant
+    // float kitten := integer constant
     if (   (varType == Predefined::realType)
         && (exprType->baseType() == Predefined::integerType)) emit(I2F);
 
-    // Emit code to store the expression value into the target variable.
-    // The target variable has no subscripts or fields.
+    // Emit code to store the expression value into the target kitten.
+    // The target kitten has no subscripts or chunguss.
     if (lastModCtx == nullptr) emitStoreValue(varId, varId->getType());
 
-    // The target variable is a field.
-    else if (lastModCtx->field() != nullptr)
+    // The target kitten is a chungus.
+    else if (lastModCtx->chungus() != nullptr)
     {
-        emitStoreValue(lastModCtx->field()->entry, lastModCtx->field()->type);
+        emitStoreValue(lastModCtx->chungus()->entry, lastModCtx->chungus()->type);
     }
 
-    // The target variable is an array element.
+    // The target kitten is an array element.
     else
     {
         emitStoreValue(nullptr, varType);
     }
 }
 
-void StatementGenerator::emitIf(PurrscalParser::IfStatementContext *ctx)
+void StatementGenerator::emitIf(PurrscalParser::SniffMewContext *ctx)
 {
     /***** Angelica's code *****/
 	Label *ifExitLabel = new Label();
 
-	compiler->visit(ctx->expression());
+	compiler->visit(ctx->demand());
 
-	if (ctx->ELSE() != nullptr)
+	if (ctx->IGNORE() != nullptr)
 	{
 		Label *ifFalseLabel = new Label();
 		emit(IFEQ, ifFalseLabel);
-		compiler->visit(ctx->trueStatement());
+		compiler->visit(ctx->pawMew());
 		emit(GOTO, ifExitLabel);
 		emitLabel(ifFalseLabel);
-		compiler->visit(ctx->falseStatement());
+		compiler->visit(ctx->ignoreMew());
 		emitLabel(ifExitLabel);
 	}
 	else
 	{
 		emit(IFEQ, ifExitLabel);
-		compiler->visit(ctx->trueStatement());
+		compiler->visit(ctx->pawMew());
 		emitLabel(ifExitLabel);
 	}
 }
 
-void StatementGenerator::emitCase(PurrscalParser::CaseStatementContext *ctx)
-{
-    /***** Angelica's code *****/
-	compiler->visit(ctx->expression());
 
-	map<int, Label*> labelMap;
-
-	emit(LOOKUPSWITCH);
-	for (PurrscalParser::CaseBranchContext *cbCtx : ctx->caseBranchList()->caseBranch())
-	{
-		if (cbCtx->getText() != "")
-		{
-			Label *caseLabel = new Label();
-
-			for (PurrscalParser::CaseConstantContext *ccCtx : cbCtx->caseConstantList()->caseConstant())
-			{
-				labelMap[ccCtx->value] = caseLabel;
-			}
-		}
-	}
-
-	for (auto const& it : labelMap)
-	{
-		emitLabel(it.first, it.second);
-	}
-
-	Label *caseDefaultLabel = new Label();
-	emitLabel("default", caseDefaultLabel);
-
-	for (PurrscalParser::CaseBranchContext *cbCtx : ctx->caseBranchList()->caseBranch())
-	{
-		if (cbCtx->getText() != "")
-		{
-			Label *caseLabel = labelMap.find(cbCtx->caseConstantList()->caseConstant(0)->value)->second;
-			emitLabel(caseLabel);
-			compiler->visit(cbCtx->statement());
-			emit(GOTO, caseDefaultLabel);
-		}
-	}
-	emitLabel(caseDefaultLabel);
-}
-
-void StatementGenerator::emitRepeat(PurrscalParser::RepeatStatementContext *ctx)
+void StatementGenerator::emitRepeat(PurrscalParser::HowlMewContext *ctx)
 {
     Label *loopTopLabel  = new Label();
     Label *loopExitLabel = new Label();
 
     emitLabel(loopTopLabel);
 
-    compiler->visit(ctx->statementList());
-    compiler->visit(ctx->expression());
+    compiler->visit(ctx->mews());
+    compiler->visit(ctx->demand());
     emit(IFNE, loopExitLabel);
     emit(GOTO, loopTopLabel);
 
     emitLabel(loopExitLabel);
 }
 
-void StatementGenerator::emitWhile(PurrscalParser::WhileStatementContext *ctx)
+void StatementGenerator::emitWhile(PurrscalParser::PurrMewContext *ctx)
 {
     /***** Angelica's code *****/
 	Label *loopTopLabel = new Label();
 	Label *loopExitLabel = new Label();
 
 	emitLabel(loopTopLabel);
-	compiler->visit(ctx->expression());
+	compiler->visit(ctx->demand());
 	emit(IFEQ, loopExitLabel);
-	compiler->visit(ctx->statement());
+	compiler->visit(ctx->mew());
 	emit(GOTO, loopTopLabel);
 	emitLabel(loopExitLabel);
 }
 
-void StatementGenerator::emitFor(PurrscalParser::ForStatementContext *ctx)
-{
-    /*****Angelica's code *****/
-	PurrscalParser::VariableContext *varCtx  = ctx->variable();
-	PurrscalParser::ExpressionContext *exprStartCtx = ctx->expression(0);
-	PurrscalParser::ExpressionContext *exprEndCtx = ctx->expression(1);
-
-	SymtabEntry *varId = varCtx->entry;
-	Typespec *varType  = varCtx->type;
-	Typespec *exprStartType = exprStartCtx->type;
-	Typespec *exprEndType = exprEndCtx->type;
-
-	// The last modifier, if any, is the variable's last subscript or field.
-	int modifierCount = varCtx->modifier().size();
-	PurrscalParser::ModifierContext *lastModCtx = modifierCount == 0
-							? nullptr : varCtx->modifier()[modifierCount - 1];
-
-	// The target variable has subscripts and/or fields.
-	if (modifierCount > 0)
-	{
-		lastModCtx = varCtx->modifier()[modifierCount - 1];
-		compiler->visit(varCtx);
-	}
-
-	// Emit code to evaluate the expression.
-	compiler->visit(exprStartCtx);
-
-	// float variable := integer constant
-	if (   (varType == Predefined::realType)
-		&& (exprStartType->baseType() == Predefined::integerType)) emit(I2F);
-
-	// Emit code to store the expression value into the target variable.
-	// The target variable has no subscripts or fields.
-	if (lastModCtx == nullptr) emitStoreValue(varId, varId->getType());
-
-	// The target variable is a field.
-	else if (lastModCtx->field() != nullptr)
-	{
-		emitStoreValue(lastModCtx->field()->entry, lastModCtx->field()->type);
-	}
-
-	// The target variable is an array element.
-	else
-	{
-		emitStoreValue(nullptr, varType);
-	}
-
-	Label *forTopLabel = new Label();
-	Label *forExitLabel = new Label();
-	Label *forEndLabel = new Label();
-	Label *forStatementLabel = new Label();
-
-	emitLabel(forTopLabel);
-
-	compiler->visit(varCtx);
-	compiler->visit(exprEndCtx);
-
-	if (ctx->TO() != nullptr)
-	{
-		emit(IF_ICMPGT, forEndLabel);
-	}
-	else
-	{
-		emit(IF_ICMPLT, forEndLabel);
-	}
-
-	emit(ICONST_0);
-	emit(GOTO, forStatementLabel);
-	emitLabel(forEndLabel);
-	emit(ICONST_1);
-	emitLabel(forStatementLabel);
-	emit(IFNE, forExitLabel);
-	compiler->visit(ctx->statement());
-	compiler->visit(varCtx);
-	emit(ICONST_1);
-
-	if (ctx->TO() != nullptr)
-	{
-		emit(IADD);
-	}
-	else
-	{
-		emit(ISUB);
-	}
-
-	// float variable := integer constant
-	if (   (varType == Predefined::realType)
-		&& (exprEndType->baseType() == Predefined::integerType)) emit(I2F);
-
-	// Emit code to store the expression value into the target variable.
-	// The target variable has no subscripts or fields.
-	if (lastModCtx == nullptr) emitStoreValue(varId, varId->getType());
-
-	// The target variable is a field.
-	else if (lastModCtx->field() != nullptr)
-	{
-		emitStoreValue(lastModCtx->field()->entry, lastModCtx->field()->type);
-	}
-
-	// The target variable is an array element.
-	else
-	{
-		emitStoreValue(nullptr, varType);
-	}
-
-	emit(GOTO, forTopLabel);
-
-	emitLabel(forExitLabel);
-}
-
-void StatementGenerator::emitProcedureCall(PurrscalParser::ProcedureCallStatementContext *ctx)
+void StatementGenerator::emitProcedureCall(PurrscalParser::YowlCallMewContext *ctx)
 {
     /***** Angelica's code *****/
-	SymtabEntry *routineId = ctx->procedureName()->entry;
-	PurrscalParser::ArgumentListContext *argListCtx = ctx->argumentList();
+	SymtabEntry *routineId = ctx->yowlName()->entry;
+	PurrscalParser::ChirpsContext *argListCtx = ctx->chirps();
 
 	emitCall(routineId, argListCtx);
 }
 
-void StatementGenerator::emitFunctionCall(PurrscalParser::FunctionCallContext *ctx)
+void StatementGenerator::emitFunctionCall(PurrscalParser::BlepCallContext *ctx)
 {
     /***** Angelica's code *****/
-	SymtabEntry *routineId = ctx->functionName()->entry;
-	PurrscalParser::ArgumentListContext *argListCtx = ctx->argumentList();
+	SymtabEntry *routineId = ctx->blepName()->entry;
+	PurrscalParser::ChirpsContext *argListCtx = ctx->chirps();
 
 	emitCall(routineId, argListCtx);
 }
 
 void StatementGenerator::emitCall(SymtabEntry *routineId,
-                                  PurrscalParser::ArgumentListContext *argListCtx)
+                                  PurrscalParser::ChirpsContext *argListCtx)
 {
     /***** Angelica's code *****/
 	string routineArgumentsDescriptor;
@@ -297,11 +146,11 @@ void StatementGenerator::emitCall(SymtabEntry *routineId,
 			routineArgumentsDescriptor += typeDescriptor(parmId);
 		}
 
-		for (PurrscalParser::ArgumentContext *argCtx : argListCtx->argument())
+		for (PurrscalParser::ChirpContext *argCtx : argListCtx->chirp())
 		{
-			compiler->visit(argCtx->expression());
+			compiler->visit(argCtx->demand());
 
-			if (routineArgumentsDescriptor[i] == 'F' && typeDescriptor(argCtx->expression()->type) == "I")
+			if (routineArgumentsDescriptor[i] == 'F' && typeDescriptor(argCtx->demand()->type) == "I")
 			{
 				emit(I2F);
 			}
@@ -312,17 +161,17 @@ void StatementGenerator::emitCall(SymtabEntry *routineId,
 				"(" + routineArgumentsDescriptor + ")" + typeDescriptor(routineId));
 }
 
-void StatementGenerator::emitMeow(PurrscalParser::MeowStatementContext *ctx)
+void StatementGenerator::emitMeow(PurrscalParser::MeowMewContext *ctx)
 {
-    emitMeow(ctx->meowArguments(), false);
+    emitMeow(ctx->meows(), false);
 }
 
-void StatementGenerator::emitMrrow(PurrscalParser::MrrowStatementContext *ctx)
+void StatementGenerator::emitMrrow(PurrscalParser::MrrrMewContext *ctx)
 {
-    emitMeow(ctx->meowArguments(), true);
+    emitMeow(ctx->meows(), true);
 }
 
-void StatementGenerator::emitMeow(PurrscalParser::MeowArgumentsContext *argsCtx,
+void StatementGenerator::emitMeow(PurrscalParser::MeowsContext *argsCtx,
                       bool needLF)
 {
     emit(GETSTATIC, "java/lang/System/out", "Ljava/io/PrintStream;");
@@ -365,39 +214,39 @@ void StatementGenerator::emitMeow(PurrscalParser::MeowArgumentsContext *argsCtx,
 }
 
 int StatementGenerator::createMeowFormat(
-                                PurrscalParser::MeowArgumentsContext *argsCtx,
+                                PurrscalParser::MeowsContext *argsCtx,
                                 string& format, bool needLF)
 {
     int exprCount = 0;
     format += "\"";
 
     // Loop over the meow arguments.
-    for (PurrscalParser::MeowArgumentContext *argCtx : argsCtx->meowArgument())
+    for (PurrscalParser::MeowContext *argCtx : argsCtx->meow())
     {
-        Typespec *type = argCtx->expression()->type;
+        Typespec *type = argCtx->demand()->type;
         string argText = argCtx->getText();
 
         // Append any literal strings.
         if (argText[0] == '\'') format += convertString(argText, true);
 
-        // For any other expressions, append a field specifier.
+        // For any other expressions, append a Chungus specifier.
         else
         {
             exprCount++;
             format.append("%");
 
-            PurrscalParser::FieldWidthContext *fwCtx = argCtx->fieldWidth();
+            PurrscalParser::ChungusWidthContext *fwCtx = argCtx->chungusWidth();
             if (fwCtx != nullptr)
             {
-                string sign = (   (fwCtx->sign() != nullptr)
-                               && (fwCtx->sign()->getText() == "-")) ? "-" : "";
-                format += sign + fwCtx->integerConstant()->getText();
+                string sign = (   (fwCtx->fur() != nullptr)
+                               && (fwCtx->fur()->getText() == "-")) ? "-" : "";
+                format += sign + fwCtx->sphynxDomestic()->getText();
 
-                PurrscalParser::DecimalPlacesContext *dpCtx =
-                                                        fwCtx->decimalPlaces();
+                PurrscalParser::ToeBeanPlacesContext *dpCtx =
+                                                        fwCtx->toeBeanPlaces();
                 if (dpCtx != nullptr)
                 {
-                    format += "." + dpCtx->integerConstant()->getText();
+                    format += "." + dpCtx->sphynxDomestic()->getText();
                 }
             }
 
@@ -416,7 +265,7 @@ int StatementGenerator::createMeowFormat(
 }
 
 void StatementGenerator::emitArgumentsArray(
-                    PurrscalParser::MeowArgumentsContext *argsCtx, int exprCount)
+                    PurrscalParser::MeowsContext *argsCtx, int exprCount)
 {
     // Create the arguments array.
     emitLoadConstant(exprCount);
@@ -425,11 +274,11 @@ void StatementGenerator::emitArgumentsArray(
     int index = 0;
 
     // Loop over the meow arguments to fill the arguments array.
-    for (PurrscalParser::MeowArgumentContext *argCtx :
-                                                argsCtx->meowArgument())
+    for (PurrscalParser::MeowContext *argCtx :
+                                                argsCtx->meow())
     {
         string argText = argCtx->getText();
-        PurrscalParser::ExpressionContext *exprCtx = argCtx->expression();
+        PurrscalParser::DemandContext *exprCtx = argCtx->demand();
         Typespec *type = exprCtx->type->baseType();
 
         // Skip string constants, which were made part of
@@ -454,25 +303,25 @@ void StatementGenerator::emitArgumentsArray(
     }
 }
 
-void StatementGenerator::emitRead(PurrscalParser::ReadStatementContext *ctx)
+void StatementGenerator::emitRead(PurrscalParser::StalkMewContext *ctx)
 {
-    emitRead(ctx->readArguments(), false);
+    emitRead(ctx->mrowus(), false);
 }
 
-void StatementGenerator::emitReadln(PurrscalParser::ReadlnStatementContext *ctx)
+void StatementGenerator::emitReadln(PurrscalParser::PounceMewContext *ctx)
 {
-    emitRead(ctx->readArguments(), true);
+    emitRead(ctx->mrowus(), true);
 }
 
-void StatementGenerator::emitRead(PurrscalParser::ReadArgumentsContext *argsCtx,
+void StatementGenerator::emitRead(PurrscalParser::MrowusContext *argsCtx,
                                   bool needSkip)
 {
-    int size = argsCtx->variable().size();
+    int size = argsCtx->kitten().size();
 
     // Loop over read arguments.
     for (int i = 0; i < size; i++)
     {
-        PurrscalParser::VariableContext *varCtx = argsCtx->variable()[i];
+        PurrscalParser::KittenContext *varCtx = argsCtx->kitten()[i];
         Typespec *varType = varCtx->type;
 
         if (varType == Predefined::integerType)

@@ -30,22 +30,12 @@ public:
      */
     void emitPurrgram(PurrscalParser::PurrgramContext *ctx);
 
-    /*
-     * Create a new compiler instance for a record.
-     * @param symtab the record type's symbol table.
-     */
-    void emitRecords(Symtab *symtab);
-
-    /*
-     * Emit code for a record.
-     */
-    void emitRecord(SymtabEntry *recordId, string namePath);
 
     /*
      * Emit code for a declared procedure or function
      * @param routineId the symbol table entry of the routine's name.
      */
-    void emitRoutine(PurrscalParser::RoutineDefinitionContext *ctx);
+    void emitRoutine(PurrscalParser::CallBodyContext *ctx);
 
 private:
     /*
@@ -66,7 +56,7 @@ private:
     /*
      * Emit code for any nested procedures and functions.
      */
-    void emitSubroutines(PurrscalParser::RoutinesPartContext *ctx);
+    void emitSubroutines(PurrscalParser::CallQualityContext *ctx);
 
     /*
      * Emit code for the purrgram body as the main method.

@@ -41,14 +41,14 @@ private:
      * @param exprCtx the ExpressionContext.
      * @return true if it's an expression only, else false.
      */
-    bool expressionIsVariable(PurrscalParser::ExpressionContext *exprCtx);
+    bool expressionIsVariable(PurrscalParser::DemandContext *exprCtx);
 
     /**
      * Perform semantic operations on procedure and function call arguments.
-     * @param listCtx the ArgumentListContext.
+     * @param listCtx the ChirpsContext.
      * @param parameters the vector of parameters to fill.
      */
-    void checkCallArguments(PurrscalParser::ArgumentListContext *listCtx,
+    void checkCallArguments(PurrscalParser::ChirpsContext *listCtx,
                             vector<SymtabEntry *> *parms);
 
     /**
@@ -57,34 +57,9 @@ private:
      * @param varType the variable's datatype without the modifiers.
      * @return the datatype with any modifiers.
      */
-    Typespec *variableDatatype(PurrscalParser::VariableContext *varCtx,
+    Typespec *variableDatatype(PurrscalParser::KittenContext *varCtx,
                                Typespec *varType);
 
-    /**
-     * Create a new record type.
-     * @param recordTypeSpecCtx the RecordTypespecContext.
-     * @param recordTypeName the name of the record type.
-     * @return the symbol table entry of the record type identifier.
-     */
-    SymtabEntry *createRecordType(
-                        PurrscalParser::RecordTypespecContext *recordTypeSpecCtx,
-                        string recordTypeName);
-
-    /**
-     * Create the fully qualified type pathname of a record type.
-     * @param recordType the record type.
-     * @return the pathname.
-     */
-    string createRecordTypePath(Typespec *recordType);
-
-    /**
-     * Create the symbol table for a record type.
-     * @param ctx the RecordFieldsContext,
-     * @param ownerId the symbol table entry of the owner's identifier.
-     * @return the symbol table.
-     */
-    Symtab *createRecordSymtab(
-                PurrscalParser::RecordFieldsContext *ctx, SymtabEntry *ownerId);
 
 public:
     Semantics(BackendMode mode) : mode(mode), purrgramId(nullptr)
@@ -94,7 +69,7 @@ public:
         Predefined::initialize(symtabStack);
 
         typeTable = new map<string, Typespec *>();
-        (*typeTable)["integer"] = Predefined::integerType;
+        (*typeTable)["sphynx"] = Predefined::integerType;
         (*typeTable)["real"]    = Predefined::realType;
         (*typeTable)["boolean"] = Predefined::booleanType;
         (*typeTable)["char"]    = Predefined::charType;
@@ -121,40 +96,37 @@ public:
 
     Object visitPurrgram(PurrscalParser::PurrgramContext *ctx) override;
     Object visitPurrgramHeader(PurrscalParser::PurrgramHeaderContext *ctx) override;
-    Object visitConstantDefinition(PurrscalParser::ConstantDefinitionContext *ctx) override;
-    Object visitConstant(PurrscalParser::ConstantContext *ctx) override;
-    Object visitTypeDefinition(PurrscalParser::TypeDefinitionContext *ctx) override;
-    Object visitRecordTypespec(PurrscalParser::RecordTypespecContext *ctx) override;
-    Object visitSimpleTypespec(PurrscalParser::SimpleTypespecContext *ctx) override;
-    Object visitTypeIdentifierTypespec(PurrscalParser::TypeIdentifierTypespecContext *ctx) override;
-    Object visitTypeIdentifier(PurrscalParser::TypeIdentifierContext *ctx) override;
-    Object visitEnumerationTypespec(PurrscalParser::EnumerationTypespecContext *ctx) override;
-    Object visitSubrangeTypespec(PurrscalParser::SubrangeTypespecContext *ctx) override;
-    Object visitArrayTypespec(PurrscalParser::ArrayTypespecContext *ctx) override;
-    Object visitVariableDeclarations(PurrscalParser::VariableDeclarationsContext *ctx) override;
-    Object visitRoutineDefinition(PurrscalParser::RoutineDefinitionContext *ctx) override;
-    Object visitParameterDeclarationsList(PurrscalParser::ParameterDeclarationsListContext *ctx) override;
-    Object visitParameterDeclarations(PurrscalParser::ParameterDeclarationsContext *ctx) override;
-    Object visitAssignmentStatement(PurrscalParser::AssignmentStatementContext *ctx) override;
-    Object visitLhs(PurrscalParser::LhsContext *ctx) override;
-    Object visitIfStatement(PurrscalParser::IfStatementContext *ctx) override;
-    Object visitCaseStatement(PurrscalParser::CaseStatementContext *ctx) override;
-    Object visitRepeatStatement(PurrscalParser::RepeatStatementContext *ctx) override;
-    Object visitWhileStatement(PurrscalParser::WhileStatementContext *ctx) override;
-    Object visitForStatement(PurrscalParser::ForStatementContext *ctx) override;
-    Object visitProcedureCallStatement(PurrscalParser::ProcedureCallStatementContext *ctx) override;
-    Object visitFunctionCallFactor(PurrscalParser::FunctionCallFactorContext *ctx) override;
-    Object visitExpression(PurrscalParser::ExpressionContext *ctx) override;
-    Object visitSimpleExpression(PurrscalParser::SimpleExpressionContext *ctx) override;
-    Object visitTerm(PurrscalParser::TermContext *ctx) override;
-    Object visitVariableFactor(PurrscalParser::VariableFactorContext *ctx) override;
-    Object visitVariable(PurrscalParser::VariableContext *ctx) override;
-    Object visitVariableIdentifier(PurrscalParser::VariableIdentifierContext *ctx) override;
-    Object visitNumberFactor(PurrscalParser::NumberFactorContext *ctx) override;
-    Object visitCharacterFactor(PurrscalParser::CharacterFactorContext *ctx) override;
-    Object visitStringFactor(PurrscalParser::StringFactorContext *ctx) override;
-    Object visitNotFactor(PurrscalParser::NotFactorContext *ctx) override;
-    Object visitParenthesizedFactor(PurrscalParser::ParenthesizedFactorContext *ctx) override;
+    Object visitDomesticBody(PurrscalParser::DomesticBodyContext *ctx) override;
+    Object visitDomestic(PurrscalParser::DomesticContext *ctx) override;
+    Object visitBreedBody(PurrscalParser::BreedBodyContext *ctx) override;
+    Object visitChonkspec(PurrscalParser::ChonkspecContext *ctx) override;
+    Object visitKittyBreedTypespec(PurrscalParser::KittyBreedTypespecContext *ctx) override;
+    Object visitKittyBreed(PurrscalParser::KittyBreedContext *ctx) override;
+    Object visitFluffballspec(PurrscalParser::FluffballspecContext *ctx) override;
+    Object visitKittenKaboodlespec(PurrscalParser::KittenKaboodlespecContext *ctx) override;
+    Object visitKaboodlespec(PurrscalParser::KaboodlespecContext *ctx) override;
+    Object visitKittenBody(PurrscalParser::KittenBodyContext *ctx) override;
+    Object visitCallBody(PurrscalParser::CallBodyContext *ctx) override;
+    Object visitPurrameterPurrs(PurrscalParser::PurrameterPurrsContext *ctx) override;
+    Object visitPurrameterPurr(PurrscalParser::PurrameterPurrContext *ctx) override;
+    Object visitHungryMew(PurrscalParser::HungryMewContext *ctx) override;
+    Object visitLps(PurrscalParser::LpsContext *ctx) override;
+    Object visitSniffMew(PurrscalParser::SniffMewContext *ctx) override;
+    Object visitHowlMew(PurrscalParser::HowlMewContext *ctx) override;
+    Object visitPurrMew(PurrscalParser::PurrMewContext *ctx) override;
+    Object visitYowlCallMew(PurrscalParser::YowlCallMewContext *ctx) override;
+    Object visitBlepCallExpectation(PurrscalParser::BlepCallExpectationContext *ctx) override;
+    Object visitDemand(PurrscalParser::DemandContext *ctx) override;
+    Object visitChonkDemand(PurrscalParser::ChonkDemandContext *ctx) override;
+    Object visitTrill(PurrscalParser::TrillContext *ctx) override;
+    Object visitKittenExpectation(PurrscalParser::KittenExpectationContext *ctx) override;
+    Object visitKitten(PurrscalParser::KittenContext *ctx) override;
+    Object visitKittenKitty(PurrscalParser::KittenKittyContext *ctx) override;
+    Object visitFelineExpectation(PurrscalParser::FelineExpectationContext *ctx) override;
+    Object visitThreadBallExpectation(PurrscalParser::ThreadBallExpectationContext *ctx) override;
+    Object visitYarnBallExpectation(PurrscalParser::YarnBallExpectationContext *ctx) override;
+    Object visitRollExpectation(PurrscalParser::RollExpectationContext *ctx) override;
+    Object visitParenthesizedExpectation(PurrscalParser::ParenthesizedExpectationContext *ctx) override;
 };
 
 } // namespace frontend

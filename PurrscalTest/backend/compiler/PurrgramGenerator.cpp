@@ -20,53 +20,15 @@ void PurrgramGenerator::emitPurrgram(PurrscalParser::PurrgramContext *ctx)
 
     localVariables = new LocalVariables(purrgramLocalsCount);
 
-    emitRecords(purrgramSymtab);
-
     emitDirective(CLASS_PUBLIC, purrgramName);
     emitDirective(SUPER, "java/lang/Object");
 
     emitPurrgramVariables();
     emitInputScanner();
     emitConstructor();
-    emitSubroutines(ctx->cat()->catQualities()->routinesPart());
+    emitSubroutines(ctx->cat()->catQualities()->callQuality());
 
     emitMainMethod(ctx);
-}
-
-void PurrgramGenerator::emitRecords(Symtab *symtab)
-{
-    for (SymtabEntry *id : symtab->sortedEntries())
-    {
-        if (   (id->getKind() == TYPE)
-            && (id->getType()->getForm() == RECORD))
-        {
-            new Compiler(compiler, id);
-        }
-    }
-}
-
-void PurrgramGenerator::emitRecord(SymtabEntry *recordId, string namePath)
-{
-    Symtab *recordSymtab = recordId->getType()->getRecordSymtab();
-
-    emitDirective(CLASS_PUBLIC, namePath);
-    emitDirective(SUPER, "java/lang/Object");
-    emitLine();
-
-    // Emit code for any nested records.
-    emitRecords(recordSymtab);
-
-    // Emit record fields.
-    for (SymtabEntry *id : recordSymtab->sortedEntries())
-    {
-        if (id->getKind() == RECORD_FIELD)
-        {
-            emitDirective(FIELD, id->getName(), typeDescriptor(id));
-        }
-    }
-
-    emitConstructor();
-    close();  // the object file
 }
 
 void PurrgramGenerator::emitPurrgramVariables()
@@ -133,12 +95,12 @@ void PurrgramGenerator::emitConstructor()
     localStack->reset();
 }
 
-void PurrgramGenerator::emitSubroutines(PurrscalParser::RoutinesPartContext *ctx)
+void PurrgramGenerator::emitSubroutines(PurrscalParser::CallQualityContext *ctx)
 {
     if (ctx != nullptr)
     {
-        for (PurrscalParser::RoutineDefinitionContext *defnCtx :
-                                                    ctx->routineDefinition())
+        for (PurrscalParser::CallBodyContext *defnCtx :
+                                                    ctx->callBody())
         {
             compiler = new Compiler(compiler);
             compiler->visit(defnCtx);
@@ -225,11 +187,11 @@ void PurrgramGenerator::emitMainEpilogue()
     close();  // the object file
 }
 
-void PurrgramGenerator::emitRoutine(PurrscalParser::RoutineDefinitionContext *ctx)
+void PurrgramGenerator::emitRoutine(PurrscalParser::CallBodyContext *ctx)
 {
-    SymtabEntry *routineId = ctx->procedureHead() != nullptr
-                            ? ctx->procedureHead()->routineIdentifier()->entry
-                            : ctx->functionHead()->routineIdentifier()->entry;
+    SymtabEntry *routineId = ctx->yowlSnoot() != nullptr
+                            ? ctx->yowlSnoot()->callKitty()->entry
+                            : ctx->blepSnoot()->callKitty()->entry;
     Symtab *routineSymtab = routineId->getRoutineSymtab();
 
     emitRoutineHeader(routineId);
@@ -273,7 +235,7 @@ void PurrgramGenerator::emitRoutineHeader(SymtabEntry *routineId)
     }
     else
     {
-        emitComment("FUNCTION " + routineName);
+        emitComment("BLEP " + routineName);
     }
 
     emitDirective(METHOD_PRIVATE_STATIC, header);
@@ -307,7 +269,7 @@ void PurrgramGenerator::emitRoutineReturn(SymtabEntry *routineId)
     emitLine();
 
     // Function: Return the value in the implied function variable.
-    if (routineId->getKind() == FUNCTION)
+    if (routineId->getKind() == BLEP)
     {
         Typespec *type = routineId->getType();
 

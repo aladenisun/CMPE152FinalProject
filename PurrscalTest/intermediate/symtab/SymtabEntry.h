@@ -35,31 +35,30 @@ class SymtabEntry;
  */
 enum class Kind
 {
-    CONSTANT, ENUMERATION_CONSTANT, TYPE, VARIABLE, RECORD_FIELD,
+    CONSTANT, ENUMERATION_CONSTANT, BREED, VARIABLE,
     VALUE_PARAMETER, REFERENCE_PARAMETER, PURRGRAM_PARAMETER,
-    PURRGRAM, YOWL, FUNCTION,
+    PURRGRAM, YOWL, BLEP,
     UNDEFINED
 };
 
 static const string KIND_STRINGS[] =
 {
-    "constant", "enumeration constant", "type", "variable", "record field",
+    "constant", "enumeration constant", "BREED", "variable",
     "value parameter", "reference parameter", "purrgram parameter",
-    "PURRGRAM", "YOWL", "FUNCTION",
+    "PURRGRAM", "YOWL", "BLEP",
     "undefined"
 };
 
 constexpr Kind CONSTANT             = Kind::CONSTANT;
 constexpr Kind ENUMERATION_CONSTANT = Kind::ENUMERATION_CONSTANT;
-constexpr Kind TYPE                 = Kind::TYPE;
+constexpr Kind BREED                 = Kind::BREED;
 constexpr Kind VARIABLE             = Kind::VARIABLE;
-constexpr Kind RECORD_FIELD         = Kind::RECORD_FIELD;
 constexpr Kind VALUE_PARAMETER      = Kind::VALUE_PARAMETER;
 constexpr Kind REFERENCE_PARAMETER  = Kind::REFERENCE_PARAMETER;
 constexpr Kind PURRGRAM_PARAMETER    = Kind::PURRGRAM_PARAMETER;
 constexpr Kind PURRGRAM              = Kind::PURRGRAM;
 constexpr Kind YOWL            = Kind::YOWL;
-constexpr Kind FUNCTION             = Kind::FUNCTION;
+constexpr Kind BLEP             = Kind::BLEP;
 constexpr Kind UNDEFINED            = Kind::UNDEFINED;
 
 /**
@@ -68,7 +67,7 @@ constexpr Kind UNDEFINED            = Kind::UNDEFINED;
 enum class Routine
 {
     DECLARED, FORWARD,
-    READ, READLN, MEOW, MRROW,
+    STALK, POUNCE, MEOW, MRROW,
     ABS, ARCTAN, CHR, COS, EXP, LN, ODD, ORD,
     EOF_FUNCTION, EOLN_FUNCTION,
     PRED, ROUND, SIN, SQR, SQRT, SUCC, TRUNC,
@@ -76,8 +75,8 @@ enum class Routine
 
 constexpr Routine DECLARED      = Routine::DECLARED;
 constexpr Routine FORWARD       = Routine::FORWARD;
-constexpr Routine READ          = Routine::READ;
-constexpr Routine READLN        = Routine::READLN;
+constexpr Routine STALK          = Routine::STALK;
+constexpr Routine POUNCE        = Routine::POUNCE;
 constexpr Routine MEOW         = Routine::MEOW;
 constexpr Routine MRROW       = Routine::MRROW;
 constexpr Routine ABS           = Routine::ABS;
@@ -146,14 +145,13 @@ public:
             case Kind::CONSTANT:
             case Kind::ENUMERATION_CONSTANT:
             case Kind::VARIABLE:
-            case Kind::RECORD_FIELD:
             case Kind::VALUE_PARAMETER:
                 info.data.value = nullptr;
                 break;
 
             case Kind::PURRGRAM:
             case Kind::YOWL:
-            case Kind::FUNCTION:
+            case Kind::BLEP:
                 info.routine.symtab = nullptr;
                 info.routine.parameters  = new vector<SymtabEntry *>();
                 info.routine.subroutines = new vector<SymtabEntry *>();

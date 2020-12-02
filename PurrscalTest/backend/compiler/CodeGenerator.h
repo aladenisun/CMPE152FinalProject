@@ -101,10 +101,10 @@ public:
     void emitComment(string text);
 
     /**
-     * Emit a statement comment.
-     * @param ctx the StatementContext.
+     * Emit a mew comment.
+     * @param ctx the MewContext.
      */
-    void emitComment(PurrscalParser::StatementContext *ctx);
+    void emitComment(PurrscalParser::MewContext *ctx);
 
     /**
      * Emit a label.
@@ -353,12 +353,6 @@ private:
      * @param elmtType the element type.
      */
     void emitStoreToArrayElement(Typespec *elmtType);
-
-    /**
-     * Emit a store to a record field.
-     * @param fieldId the symbol table entry of the field.
-     */
-    void emitStoreToRecordField(SymtabEntry *fieldId);
 };
 
 }} // namespace backend::compiler

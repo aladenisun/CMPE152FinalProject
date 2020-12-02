@@ -33,7 +33,7 @@ const string CrossReferencer::NAME_FORMAT = string("%-") +
 const string CrossReferencer::NUMBERS_LABEL = " Line numbers    ";
 const string CrossReferencer::NUMBERS_UNDERLINE = " ------------    ";
 const string CrossReferencer::NUMBER_FORMAT = " %03d";
-const string CrossReferencer::ENUM_CONST_FORMAT = string("%") +
+const string CrossReferencer::ENUM_DOMESTIC_FORMAT = string("%") +
                                                   to_string(NAME_WIDTH) +
                                                   string("s = %s");
 
@@ -59,11 +59,6 @@ void CrossReferencer::printRoutine(SymtabEntry *routineId) const
 
     // Print the entries in the routine's symbol table.
     Symtab *symtab = routineId->getRoutineSymtab();
-    vector<Typespec *> newRecordTypes;
-    printSymtab(symtab, newRecordTypes);
-
-    // Print cross-reference tables for any records defined in the routine.
-    if (newRecordTypes.size() > 0) printRecords(newRecordTypes);
 
     // Print any procedures and functions defined in the routine.
     vector<SymtabEntry *> *routineIds = routineId->getSubroutines();
@@ -82,8 +77,7 @@ void CrossReferencer::printColumnHeadings() const
     cout << NUMBERS_UNDERLINE << "------------------" << endl;
 }
 
-void CrossReferencer::printSymtab(Symtab *symtab,
-                                  vector<Typespec *>& recordTypes) const
+void CrossReferencer::printSymtab(Symtab *symtab) const
 {
     // Loop over the sorted list of symbol table entries.
     vector<SymtabEntry *> sorted = symtab->sortedEntries();
@@ -104,12 +98,11 @@ void CrossReferencer::printSymtab(Symtab *symtab,
 
         // Print the symbol table entry.
         cout << endl;
-        printEntry(entry, recordTypes);
+        printEntry(entry);
     }
 }
 
-void CrossReferencer::printEntry(SymtabEntry *entry,
-                                 vector<Typespec *>& recordTypes) const
+void CrossReferencer::printEntry(SymtabEntry *entry) const
 {
     Kind kind = entry->getKind();
     int nestingLevel = entry->getSymtab()->getNestingLevel();
@@ -130,7 +123,7 @@ void CrossReferencer::printEntry(SymtabEntry *entry,
             // Print the type details only if the type is unnamed.
             if (type->getIdentifier() == nullptr)
             {
-                printTypeDetail(type, recordTypes);
+                printTypeDetail(type);
             }
 
             break;
@@ -144,12 +137,12 @@ void CrossReferencer::printEntry(SymtabEntry *entry,
             break;
         }
 
-        case Kind::TYPE:
+        case Kind::BREED:
         {
             // Print the type details only when the type is first defined.
             if (entry == type->getIdentifier())
             {
-                printTypeDetail(type, recordTypes);
+                printTypeDetail(type);
             }
 
             break;
@@ -160,7 +153,7 @@ void CrossReferencer::printEntry(SymtabEntry *entry,
             // Print the type details only if the type is unnamed.
             if (type->getIdentifier() == nullptr)
             {
-                printTypeDetail(type, recordTypes);
+                printTypeDetail(type);
             }
 
             break;
@@ -184,8 +177,7 @@ void CrossReferencer::printType(Typespec *typespec) const
     }
 }
 
-void CrossReferencer::printTypeDetail(Typespec *type,
-                                      vector<Typespec *>& recordTypes)
+void CrossReferencer::printTypeDetail(Typespec *type)
     const
 {
     Form form = type->getForm();
@@ -205,7 +197,7 @@ void CrossReferencer::printTypeDetail(Typespec *type,
                 Object value = constant_id->getValue();
 
                 cout << INDENT;
-                printf(ENUM_CONST_FORMAT.c_str(), name.c_str(),
+                printf(ENUM_DOMESTIC_FORMAT.c_str(), name.c_str(),
                        toString(value, type).c_str());
                 cout << endl;
             }
@@ -225,7 +217,7 @@ void CrossReferencer::printTypeDetail(Typespec *type,
             // Print the base type details only if the type is unnamed.
             if (baseTypespec->getIdentifier() == nullptr)
             {
-                printTypeDetail(baseTypespec, recordTypes);
+                printTypeDetail(baseTypespec);
             }
 
             cout << INDENT << "Range = ";
@@ -234,7 +226,7 @@ void CrossReferencer::printTypeDetail(Typespec *type,
             break;
         }
 
-        case Form::ARRAY:
+        case Form::KABOODLE:
         {
             Typespec *indexType = type->getArrayIndexType();
             Typespec *elementType = type->getArrayElementType();
@@ -246,7 +238,7 @@ void CrossReferencer::printTypeDetail(Typespec *type,
             // Print the index type details only if the type is unnamed.
             if (indexType->getIdentifier() == nullptr)
             {
-                printTypeDetail(indexType, recordTypes);
+                printTypeDetail(indexType);
             }
 
             cout << INDENT << "--- ELEMENT TYPE ---" << endl;
@@ -256,43 +248,14 @@ void CrossReferencer::printTypeDetail(Typespec *type,
             // Print the element type details only if the type is unnamed.
             if (elementType->getIdentifier() == nullptr)
             {
-                printTypeDetail(elementType, recordTypes);
+                printTypeDetail(elementType);
             }
 
             break;
         }
 
-        case Form::RECORD:
-        {
-            recordTypes.push_back(type);
-            break;
-        }
 
         default: break;  // shouldn't get here
-    }
-}
-
-void CrossReferencer::printRecords(vector<Typespec *>& recordTypes) const
-{
-    for (Typespec *recordType : recordTypes)
-    {
-        SymtabEntry *record_id = recordType->getIdentifier();
-        string name = record_id != nullptr ? record_id->getName()
-                                           : "<unnamed>";
-
-        cout << endl << "--- RECORD " << name << " ---" << endl;
-        printColumnHeadings();
-
-        // Print the entries in the record's symbol table.
-        Symtab *symtab = recordType->getRecordSymtab();
-        vector<Typespec *> newRecordTypes;
-        printSymtab(symtab, newRecordTypes);
-
-        // Print cross-reference tables for any nested records.
-        if (newRecordTypes.size() > 0)
-        {
-            printRecords(newRecordTypes);
-        }
     }
 }
 

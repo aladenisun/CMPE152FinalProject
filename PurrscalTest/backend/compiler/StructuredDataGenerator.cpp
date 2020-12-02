@@ -35,16 +35,14 @@ void StructuredDataGenerator::emitData(SymtabEntry *routineId)
             Typespec *type = id->getType();
             Form form = type->getForm();
 
-            if      (form == ARRAY)  emitAllocateArray(id, type);
-            else if (form == RECORD) emitAllocateRecord(id, type, DUP);
-        }
+            if      (form == KABOODLE)  emitAllocateArray(id, type);        }
     }
 }
 
 /**
  * Emit code to allocate an array for a target variable or field.
  * @param targetId the target variable's or field's symbol table entry.
- * @param arrayType the array type.
+ * @param kaboodle the array type.
  */
 void StructuredDataGenerator::emitAllocateArray(SymtabEntry *targetId,
                                                 Typespec *arrayType)
@@ -60,7 +58,7 @@ void StructuredDataGenerator::emitAllocateArray(SymtabEntry *targetId,
         ++dimensionCount;
         emitLoadConstant(elmtCount);
         elmtType = elmtType->getArrayElementType();
-    } while (elmtType->getForm() == ARRAY);
+    } while (elmtType->getForm() == KABOODLE);
 
     // The array element type.
     elmtType = elmtType->baseType();
@@ -72,19 +70,13 @@ void StructuredDataGenerator::emitAllocateArray(SymtabEntry *targetId,
         : elmtType == Predefined::charType    ? "char"
         : elmtType == Predefined::stringType  ? "java/lang/String"
         : elmtForm == ENUMERATION             ? "int"
-        : elmtForm == RECORD                  ? elmtType->getIdentifier()
-                                                        ->getName()
+
         :                                       nullptr;
 
     // One-dimensional array.
     if (dimensionCount == 1)
     {
-        if (elmtType->getForm() == RECORD)
-        {
-            emit(ANEWARRAY, elmtType->getRecordTypePath());
-            emit(DUP);
-        }
-        else if (elmtType == Predefined::stringType)
+        if (elmtType == Predefined::stringType)
         {
             emit(ANEWARRAY, typeName);
         }
@@ -101,19 +93,11 @@ void StructuredDataGenerator::emitAllocateArray(SymtabEntry *targetId,
              to_string(dimensionCount));
         localStack->decrease(dimensionCount - 1);
 
-        if (elmtType->getForm() == RECORD) emit(DUP);
     }
 
     // Store the allocation into the array variable.
     emitStoreValue(targetId, targetId->getType());
 
-    // Allocate data for record elements.
-    if (elmtType->getForm() == RECORD)
-    {
-        emitAllocateArrayElements(targetId, targetId->getType(),
-                                  1, dimensionCount);
-        emit(POP);
-    }
 }
 
 void StructuredDataGenerator::emitAllocateArrayElements(
@@ -141,19 +125,12 @@ void StructuredDataGenerator::emitAllocateArrayElements(
     Form form = elmtType->getArrayElementType()->getForm();
 
     // Allocate data for the next array dimension.
-    if (form == ARRAY)
+    if (form == KABOODLE)
     {
         emitLoadLocal(Predefined::integerType, tempIndex);   // subscript
         emit(AALOAD);
         emitAllocateArrayElements(targetId, elmtType->getArrayElementType(),
                                   dimensionIndex + 1, dimensionCount);
-    }
-
-    // Allocate data for a record element.
-    else if (form == RECORD)
-    {
-        emitLoadLocal(Predefined::integerType, tempIndex);  // subscript
-        emitAllocateRecord(nullptr, elmtType->getArrayElementType(), DUP_X2);
     }
 
     // Bottom of the loop:
@@ -168,84 +145,6 @@ void StructuredDataGenerator::emitAllocateArrayElements(
     emitLabel(loopExitLabel);
 
     localVariables->release(tempIndex);
-}
-
-/**
- * Emit code to allocate a record variable as a class.
- * @param variableId the symbol table entry of the variable.
- * @param recordType the record data type.
- */
-void StructuredDataGenerator::emitAllocateRecord(
-                SymtabEntry *variableId, Typespec *recordType, Instruction dup)
-{
-    // Allocate and store into the record variable.
-    emit(NEW, recordType->getRecordTypePath());
-    emit(DUP);
-    emit(INVOKESPECIAL, recordType->getRecordTypePath() + "/<init>()V");
-    localStack->decrease(1);
-
-    bool hasStructuredField = false;
-    for (SymtabEntry *fieldId : recordType->getRecordSymtab()->sortedEntries())
-    {
-        if (fieldId->getKind() == RECORD_FIELD)
-        {
-            if (fieldId->getType()->isStructured())
-            {
-                hasStructuredField = true;
-                break;
-            }
-        }
-    }
-
-    // Duplicate the record address to use to initialize structured fields:
-    //   DUP    to later store this record into an unstructured variable
-    //   DUP_X1 to later store this record into a record field
-    //   DUP_X2 to later store this record into an array element
-    if (hasStructuredField)
-    {
-        emit(dup);
-        // Stack: @record @record ...
-    }
-
-    // Store newly allocated record.
-    if (variableId != nullptr)
-    {
-        emitStoreValue(variableId, variableId->getType());
-    }
-    else
-    {
-        emitStoreValue(nullptr, nullptr);
-    }
-    // Stack: @record ...
-
-    // Allocate data for any structured fields.
-    if (hasStructuredField)
-    {
-        for (SymtabEntry *fieldId :
-                            recordType->getRecordSymtab()->sortedEntries())
-        {
-            if (fieldId->getKind() == RECORD_FIELD)
-            {
-                Typespec *fieldType = fieldId->getType();
-                if (fieldType->getForm() == ARRAY)
-                {
-                    emit(DUP);  // dup record address to store array field
-                    emitAllocateArray(fieldId, fieldType);
-                    // Stack: @record
-                }
-                else if (fieldType->getForm() == RECORD)
-                {
-                    emit(DUP);  // dup record address to store record field
-                    emitAllocateRecord(fieldId, fieldType, DUP_X1);
-                    // Stack: @record
-                }
-            }
-        }
-
-        // Pop off the remaining duplicated record address
-        // from either DUP or DUP_X1 or DUP_X2
-        emit(POP);
-    }
 }
 
 }} // namespace backend::compiler

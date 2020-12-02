@@ -71,31 +71,31 @@ void Predefined::initialize(SymtabStack *symtabStack)
 void Predefined::initializeTypes(SymtabStack *symtabStack)
 {
     // Type integer.
-    integerId = symtabStack->enterLocal("integer", TYPE);
+    integerId = symtabStack->enterLocal("sphynx", BREED);
     integerType = new Typespec(SCALAR);
     integerType->setIdentifier(integerId);
     integerId->setType(integerType);
 
     // Type real.
-    realId = symtabStack->enterLocal("real", TYPE);
+    realId = symtabStack->enterLocal("real", BREED);
     realType = new Typespec(SCALAR);
     realType->setIdentifier(realId);
     realId->setType(realType);
 
     // Type boolean.
-    booleanId = symtabStack->enterLocal("boolean", TYPE);
+    booleanId = symtabStack->enterLocal("boolean", BREED);
     booleanType = new Typespec(ENUMERATION);
     booleanType->setIdentifier(booleanId);
     booleanId->setType(booleanType);
 
     // Type char.
-    charId = symtabStack->enterLocal("char", TYPE);
+    charId = symtabStack->enterLocal("char", BREED);
     charType = new Typespec(SCALAR);
     charType->setIdentifier(charId);
     charId->setType(charType);
 
     // Type string.
-    stringId = symtabStack->enterLocal("string", TYPE);
+    stringId = symtabStack->enterLocal("string", BREED);
     stringType = new Typespec(SCALAR);
     stringType->setIdentifier(stringId);
     stringId->setType(stringType);
@@ -125,28 +125,28 @@ void Predefined::initializeConstants(SymtabStack *symtabStack)
 
 void Predefined::initializeStandardRoutines(SymtabStack *symtabStack)
 {
-    readId    = enterStandard(symtabStack, YOWL, "read",    READ);
-    readlnId  = enterStandard(symtabStack, YOWL, "readln",  READLN);
+    readId    = enterStandard(symtabStack, YOWL, "stalk",    STALK);
+    readlnId  = enterStandard(symtabStack, YOWL, "pounce",  POUNCE);
     meowId   = enterStandard(symtabStack, YOWL, "meow",   MEOW);
     mrrowId = enterStandard(symtabStack, YOWL, "mrrow", MRROW);
 
-    absId    = enterStandard(symtabStack, FUNCTION,  "abs",     ABS);
-    arctanId = enterStandard(symtabStack, FUNCTION,  "arctan",  ARCTAN);
-    chrId    = enterStandard(symtabStack, FUNCTION,  "chr",     CHR);
-    cosId    = enterStandard(symtabStack, FUNCTION,  "cos",     COS);
-    eofId    = enterStandard(symtabStack, FUNCTION,  "eof",     EOF_FUNCTION);
-    eolnId   = enterStandard(symtabStack, FUNCTION,  "eoln",    EOLN_FUNCTION);
-    expId    = enterStandard(symtabStack, FUNCTION,  "exp",     EXP);
-    lnId     = enterStandard(symtabStack, FUNCTION,  "ln",      LN);
-    oddId    = enterStandard(symtabStack, FUNCTION,  "odd",     ODD);
-    ordId    = enterStandard(symtabStack, FUNCTION,  "ord",     ORD);
-    predId   = enterStandard(symtabStack, FUNCTION,  "pred",    PRED);
-    roundId  = enterStandard(symtabStack, FUNCTION,  "round",   ROUND);
-    sinId    = enterStandard(symtabStack, FUNCTION,  "sin",     SIN);
-    sqrId    = enterStandard(symtabStack, FUNCTION,  "sqr",     SQR);
-    sqrtId   = enterStandard(symtabStack, FUNCTION,  "sqrt",    SQRT);
-    succId   = enterStandard(symtabStack, FUNCTION,  "succ",    SUCC);
-    truncId  = enterStandard(symtabStack, FUNCTION,  "trunc",   TRUNC);
+    absId    = enterStandard(symtabStack, BLEP,  "abs",     ABS);
+    arctanId = enterStandard(symtabStack, BLEP,  "arctan",  ARCTAN);
+    chrId    = enterStandard(symtabStack, BLEP,  "chr",     CHR);
+    cosId    = enterStandard(symtabStack, BLEP,  "cos",     COS);
+    eofId    = enterStandard(symtabStack, BLEP,  "eof",     EOF_FUNCTION);
+    eolnId   = enterStandard(symtabStack, BLEP,  "eoln",    EOLN_FUNCTION);
+    expId    = enterStandard(symtabStack, BLEP,  "exp",     EXP);
+    lnId     = enterStandard(symtabStack, BLEP,  "ln",      LN);
+    oddId    = enterStandard(symtabStack, BLEP,  "odd",     ODD);
+    ordId    = enterStandard(symtabStack, BLEP,  "ord",     ORD);
+    predId   = enterStandard(symtabStack, BLEP,  "pred",    PRED);
+    roundId  = enterStandard(symtabStack, BLEP,  "round",   ROUND);
+    sinId    = enterStandard(symtabStack, BLEP,  "sin",     SIN);
+    sqrId    = enterStandard(symtabStack, BLEP,  "sqr",     SQR);
+    sqrtId   = enterStandard(symtabStack, BLEP,  "sqrt",    SQRT);
+    succId   = enterStandard(symtabStack, BLEP,  "succ",    SUCC);
+    truncId  = enterStandard(symtabStack, BLEP,  "trunc",   TRUNC);
 }
 
 SymtabEntry *Predefined::enterStandard(SymtabStack *symtabStack,

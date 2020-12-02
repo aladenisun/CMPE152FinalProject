@@ -23,7 +23,7 @@ private:
     /**
      * Emit code to allocate an array for a target variable or field.
      * @param targetId the target variable's or field's symbol table entry.
-     * @param arrayType the array type.
+     * @param kaboodle the array type.
      */
     void emitAllocateArray(SymtabEntry *targetId, Typespec *arrayType);
 
@@ -38,13 +38,6 @@ private:
     void emitAllocateArrayElements(SymtabEntry *targetId, Typespec *elmtType,
                                    int dimensionIndex, int dimensionCount);
 
-    /**
-     * Emit code to allocate a record variable as a class.
-     * @param variableId the symbol table entry of the variable.
-     * @param recordType the record data type.
-     */
-    void emitAllocateRecord(SymtabEntry *variableId, Typespec *recordType,
-                            Instruction dup);
 };
 
 }} // namespace backend::compiler

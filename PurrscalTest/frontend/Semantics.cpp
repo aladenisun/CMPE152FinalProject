@@ -52,16 +52,16 @@ Object Semantics::visitPurrgramHeader(PurrscalParser::PurrgramHeaderContext *ctx
     return nullptr;
 }
 
-Object Semantics::visitConstantDefinition(
-                                PurrscalParser::ConstantDefinitionContext *ctx)
+Object Semantics::visitDomesticBody(
+                                PurrscalParser::DomesticBodyContext *ctx)
 {
-    PurrscalParser::ConstantIdentifierContext *idCtx = ctx->constantIdentifier();
+    PurrscalParser::DomesticKittyContext *idCtx = ctx->domesticKitty();
     string constantName = toLowerCase(idCtx->KITTY()->getText());
     SymtabEntry *constantId = symtabStack->lookupLocal(constantName);
 
     if (constantId == nullptr)
     {
-        PurrscalParser::ConstantContext *constCtx = ctx->constant();
+        PurrscalParser::DomesticContext *constCtx = ctx->domestic();
         Object constValue = visit(constCtx);
 
         constantId = symtabStack->enterLocal(constantName, CONSTANT);
@@ -83,7 +83,7 @@ Object Semantics::visitConstantDefinition(
     return nullptr;
 }
 
-Object Semantics::visitConstant(PurrscalParser::ConstantContext *ctx)
+Object Semantics::visitDomestic(PurrscalParser::DomesticContext *ctx)
 {
     if (ctx->KITTY() != nullptr)
     {
@@ -110,14 +110,14 @@ Object Semantics::visitConstant(PurrscalParser::ConstantContext *ctx)
             ctx->value = 0;
         }
     }
-    else if (ctx->characterConstant() != nullptr)
+    else if (ctx->threadBall() != nullptr)
     {
         ctx->type = Predefined::charType;
         ctx->value = ctx->getText()[1];
     }
-    else if (ctx->stringConstant() != nullptr)
+    else if (ctx->yarnBall() != nullptr)
     {
-        string purrscalString = ctx->stringConstant()->STRING()->getText();
+        string purrscalString = ctx->yarnBall()->YARN()->getText();
         string unquoted = purrscalString.substr(1, purrscalString.length()-2);
 
         size_t pos = 0;
@@ -137,9 +137,9 @@ Object Semantics::visitConstant(PurrscalParser::ConstantContext *ctx)
     }
     else  // number
     {
-        PurrscalParser::UnsignedNumberContext *unsignedCtx = ctx->unsignedNumber();
+        PurrscalParser::HairlessFelineContext *unsignedCtx = ctx->hairlessFeline();
 
-        if (unsignedCtx->integerConstant() != nullptr)
+        if (unsignedCtx->sphynxDomestic() != nullptr)
         {
             ctx->type = Predefined::integerType;
             ctx->value = stoi(ctx->getText());
@@ -154,31 +154,22 @@ Object Semantics::visitConstant(PurrscalParser::ConstantContext *ctx)
     return ctx->value;
 }
 
-Object Semantics::visitTypeDefinition(PurrscalParser::TypeDefinitionContext *ctx)
+Object Semantics::visitBreedBody(PurrscalParser::BreedBodyContext *ctx)
 {
-    PurrscalParser::TypeIdentifierContext *idCtx = ctx->typeIdentifier();
+    PurrscalParser::KittyBreedContext *idCtx = ctx->kittyBreed();
     string typeName = toLowerCase(idCtx->KITTY()->getText());
     SymtabEntry *typeId = symtabStack->lookupLocal(typeName);
 
-    PurrscalParser::TypeSpecificationContext *typespecCtx =
-                                                    ctx->typeSpecification();
+    PurrscalParser::BreedContext *typespecCtx =
+                                                    ctx->breed();
 
-    // If it's a record type, create a named record type.
-    PurrscalParser::RecordTypespecContext *recordTypespecCtx =
-                dynamic_cast<PurrscalParser::RecordTypespecContext *>(typespecCtx);
-    if (recordTypespecCtx != nullptr)
+    if (typeId == nullptr)
     {
-        typeId = createRecordType(recordTypespecCtx, typeName);
-    }
-
-    // Enter the type name of any other type into the symbol table.
-    else if (typeId == nullptr)
-    {
-        PurrscalParser::TypeSpecificationContext *typeCtx =
-                                                    ctx->typeSpecification();
+        PurrscalParser::BreedContext *typeCtx =
+                                                    ctx->breed();
         visit(typeCtx);
 
-        typeId = symtabStack->enterLocal(typeName, TYPE);
+        typeId = symtabStack->enterLocal(typeName, BREED);
         typeId->setType(typeCtx->type);
         typeCtx->type->setIdentifier(typeId);
     }
@@ -194,96 +185,31 @@ Object Semantics::visitTypeDefinition(PurrscalParser::TypeDefinitionContext *ctx
     return nullptr;
 }
 
-Object Semantics::visitRecordTypespec(PurrscalParser::RecordTypespecContext *ctx)
+Object Semantics::visitChonkspec(PurrscalParser::ChonkspecContext *ctx)
 {
-    // Create an unnamed record type.
-    string recordTypeName = Symtab::generateUnnamedName();
-    createRecordType(ctx, recordTypeName);
+    visit(ctx->chonk());
+    ctx->type = ctx->chonk()->type;
 
     return nullptr;
 }
 
-SymtabEntry *Semantics::createRecordType(
-                    PurrscalParser::RecordTypespecContext *recordTypeSpecCtx,
-                    string recordTypeName)
+Object Semantics::visitKittyBreedTypespec(
+                            PurrscalParser::KittyBreedTypespecContext *ctx)
 {
-    PurrscalParser::RecordTypeContext *recordTypeCtx =
-                                            recordTypeSpecCtx->recordType();
-    Typespec *recordType = new Typespec(RECORD);
-
-    SymtabEntry *recordTypeId = symtabStack->enterLocal(recordTypeName, TYPE);
-    recordTypeId->setType(recordType);
-    recordType->setIdentifier(recordTypeId);
-
-    string recordTypePath = createRecordTypePath(recordType);
-    recordType->setRecordTypePath(recordTypePath);
-
-    // Enter the record fields into the record type's symbol table.
-    Symtab *recordSymtab = createRecordSymtab(recordTypeCtx->recordFields(),
-                                             recordTypeId);
-    recordType->setRecordSymtab(recordSymtab);
-
-    recordTypeCtx->entry    = recordTypeId;
-    recordTypeSpecCtx->type = recordType;
-
-    return recordTypeId;
-}
-
-string Semantics::createRecordTypePath(Typespec *recordType)
-{
-    SymtabEntry *recordId = recordType->getIdentifier();
-    SymtabEntry *parentId = recordId->getSymtab()->getOwner();
-    string path = recordId->getName();
-
-    while (   (parentId->getKind() == TYPE)
-           && (parentId->getType()->getForm() == RECORD))
-    {
-        path = parentId->getName() + "$" + path;
-        parentId = parentId->getSymtab()->getOwner();
-    }
-
-    path = parentId->getName() + "$" + path;
-    return path;
-}
-
-Symtab *Semantics::createRecordSymtab(
-                PurrscalParser::RecordFieldsContext *ctx, SymtabEntry *ownerId)
-{
-    Symtab *recordSymtab = symtabStack->push();
-
-    recordSymtab->setOwner(ownerId);
-    visit(ctx->variableDeclarationsList());
-    recordSymtab->resetVariables(RECORD_FIELD);
-    symtabStack->pop();
-
-    return recordSymtab;
-}
-
-Object Semantics::visitSimpleTypespec(PurrscalParser::SimpleTypespecContext *ctx)
-{
-    visit(ctx->simpleType());
-    ctx->type = ctx->simpleType()->type;
+    visit(ctx->kittyBreed());
+    ctx->type = ctx->kittyBreed()->type;
 
     return nullptr;
 }
 
-Object Semantics::visitTypeIdentifierTypespec(
-                            PurrscalParser::TypeIdentifierTypespecContext *ctx)
-{
-    visit(ctx->typeIdentifier());
-    ctx->type = ctx->typeIdentifier()->type;
-
-    return nullptr;
-}
-
-Object Semantics::visitTypeIdentifier(PurrscalParser::TypeIdentifierContext *ctx)
+Object Semantics::visitKittyBreed(PurrscalParser::KittyBreedContext *ctx)
 {
     string typeName = toLowerCase(ctx->KITTY()->getText());
     SymtabEntry *typeId = symtabStack->lookup(typeName);
 
     if (typeId != nullptr)
     {
-        if (typeId->getKind() != TYPE)
+        if (typeId->getKind() != BREED)
         {
             error.flag(INVALID_TYPE, ctx);
             ctx->type = Predefined::integerType;
@@ -305,19 +231,19 @@ Object Semantics::visitTypeIdentifier(PurrscalParser::TypeIdentifierContext *ctx
     return nullptr;
 }
 
-Object Semantics::visitEnumerationTypespec(
-                                PurrscalParser::EnumerationTypespecContext *ctx)
+Object Semantics::visitFluffballspec(
+                                PurrscalParser::FluffballspecContext *ctx)
 {
     Typespec *enumType = new Typespec(ENUMERATION);
     vector<SymtabEntry *> *constants = new vector<SymtabEntry *>();
     int value = -1;
 
     // Loop over the enumeration constants.
-    for (PurrscalParser::EnumerationConstantContext *constCtx :
-                                ctx->enumerationType()->enumerationConstant())
+    for (PurrscalParser::FluffballDomesticContext *constCtx :
+                                ctx->fluffball()->fluffballDomestic())
     {
-        PurrscalParser::ConstantIdentifierContext *constIdCtx =
-                                                constCtx->constantIdentifier();
+        PurrscalParser::DomesticKittyContext *constIdCtx =
+                                                constCtx->domesticKitty();
         string constantName = toLowerCase(constIdCtx->KITTY()->getText());
         SymtabEntry *constantId = symtabStack->lookupLocal(constantName);
 
@@ -347,13 +273,13 @@ Object Semantics::visitEnumerationTypespec(
     return nullptr;
 }
 
-Object Semantics::visitSubrangeTypespec(
-                                    PurrscalParser::SubrangeTypespecContext *ctx)
+Object Semantics::visitKittenKaboodlespec(
+                                    PurrscalParser::KittenKaboodlespecContext *ctx)
 {
     Typespec *type = new Typespec(SUBRANGE);
-    PurrscalParser::SubrangeTypeContext *subCtx = ctx->subrangeType();
-    PurrscalParser::ConstantContext *minCtx = subCtx->constant()[0];
-    PurrscalParser::ConstantContext *maxCtx = subCtx->constant()[1];
+    PurrscalParser::KittenKaboodleContext *subCtx = ctx->kittenKaboodle();
+    PurrscalParser::DomesticContext *minCtx = subCtx->domestic()[0];
+    PurrscalParser::DomesticContext *maxCtx = subCtx->domestic()[1];
 
     Object minObj = visit(minCtx);
     Object maxObj = visit(maxCtx);
@@ -405,34 +331,34 @@ Object Semantics::visitSubrangeTypespec(
     return nullptr;
 }
 
-Object Semantics::visitArrayTypespec(PurrscalParser::ArrayTypespecContext *ctx)
+Object Semantics::visitKaboodlespec(PurrscalParser::KaboodlespecContext *ctx)
 {
-    Typespec *arrayType = new Typespec(ARRAY);
-    PurrscalParser::ArrayTypeContext *arrayCtx = ctx->arrayType();
-    PurrscalParser::ArrayDimensionListContext *listCtx =
-                                                arrayCtx->arrayDimensionList();
+    Typespec *arrayType = new Typespec(KABOODLE);
+    PurrscalParser::KaboodleContext *arrayCtx = ctx->kaboodle();
+    PurrscalParser::KaboodleListContext *listCtx =
+                                                arrayCtx->kaboodleList();
 
     ctx->type = arrayType;
 
     // Loop over the array dimensions.
-    int count = listCtx->simpleType().size();
+    int count = listCtx->chonk().size();
     for (int i = 0; i < count; i++)
     {
-        PurrscalParser::SimpleTypeContext *simpleCtx = listCtx->simpleType()[i];
+        PurrscalParser::ChonkContext *simpleCtx = listCtx->chonk()[i];
         visit(simpleCtx);
         arrayType->setArrayIndexType(simpleCtx->type);
         arrayType->setArrayElementCount(typeCount(simpleCtx->type));
 
         if (i < count-1)
         {
-            Typespec *elmtType = new Typespec(ARRAY);
+            Typespec *elmtType = new Typespec(KABOODLE);
             arrayType->setArrayElementType(elmtType);
             arrayType = elmtType;
         }
     }
 
-    visit(arrayCtx->typeSpecification());
-    Typespec *elmtType = arrayCtx->typeSpecification()->type;
+    visit(arrayCtx->breed());
+    Typespec *elmtType = arrayCtx->breed()->type;
     arrayType->setArrayElementType(elmtType);
 
     return nullptr;
@@ -457,18 +383,18 @@ int Semantics::typeCount(Typespec *type)
     return count;
 }
 
-Object Semantics::visitVariableDeclarations(
-                                PurrscalParser::VariableDeclarationsContext *ctx)
+Object Semantics::visitKittenBody(
+                                PurrscalParser::KittenBodyContext *ctx)
 {
-    PurrscalParser::TypeSpecificationContext *typeCtx = ctx->typeSpecification();
+    PurrscalParser::BreedContext *typeCtx = ctx->breed();
     visit(typeCtx);
 
-    PurrscalParser::VariableIdentifierListContext *listCtx =
-                                                ctx->variableIdentifierList();
+    PurrscalParser::KittenKittiesContext *listCtx =
+                                                ctx->kittenKitties();
 
     // Loop over the variables being declared.
-    for (PurrscalParser::VariableIdentifierContext *idCtx :
-                                                listCtx->variableIdentifier())
+    for (PurrscalParser::KittenKittyContext *idCtx :
+                                                listCtx->kittenKitty())
     {
         int lineNumber = idCtx->getStart()->getLine();
         string variableName = toLowerCase(idCtx->KITTY()->getText());
@@ -499,26 +425,26 @@ Object Semantics::visitVariableDeclarations(
     return nullptr;
 }
 
-Object Semantics::visitRoutineDefinition(
-                                    PurrscalParser::RoutineDefinitionContext *ctx)
+Object Semantics::visitCallBody(
+                                    PurrscalParser::CallBodyContext *ctx)
 {
-    PurrscalParser::FunctionHeadContext  *funcCtx = ctx->functionHead();
-    PurrscalParser::ProcedureHeadContext *procCtx = ctx->procedureHead();
-    PurrscalParser::RoutineIdentifierContext *idCtx = nullptr;
-    PurrscalParser::ParametersContext *parameters = nullptr;
+    PurrscalParser::BlepSnootContext  *funcCtx = ctx->blepSnoot();
+    PurrscalParser::YowlSnootContext *procCtx = ctx->yowlSnoot();
+    PurrscalParser::CallKittyContext *idCtx = nullptr;
+    PurrscalParser::PurrametersContext *parameters = nullptr;
     bool functionDefinition = funcCtx != nullptr;
     Typespec *returnType = nullptr;
     string routineName;
 
     if (functionDefinition)
     {
-        idCtx = funcCtx->routineIdentifier();
-        parameters = funcCtx->parameters();
+        idCtx = funcCtx->callKitty();
+        parameters = funcCtx->purrameters();
     }
     else
     {
-        idCtx = procCtx->routineIdentifier();
-        parameters = procCtx->parameters();
+        idCtx = procCtx->callKitty();
+        parameters = procCtx->purrameters();
     }
 
     routineName = toLowerCase(idCtx->KITTY()->getText());
@@ -532,7 +458,7 @@ Object Semantics::visitRoutineDefinition(
     }
 
     routineId = symtabStack->enterLocal(
-                    routineName, functionDefinition ? FUNCTION : YOWL);
+                    routineName, functionDefinition ? BLEP : YOWL);
     routineId->setRoutineCode(DECLARED);
     idCtx->entry = routineId;
 
@@ -549,7 +475,7 @@ Object Semantics::visitRoutineDefinition(
     if (parameters != nullptr)
     {
         vector<SymtabEntry *> *parameterIds =
-                                visit(parameters->parameterDeclarationsList())
+                                visit(parameters->purrameterPurrs())
                                                 .as<vector<SymtabEntry *>*>();
         routineId->setRoutineParameters(parameterIds);
 
@@ -561,8 +487,8 @@ Object Semantics::visitRoutineDefinition(
 
     if (functionDefinition)
     {
-        PurrscalParser::TypeIdentifierContext *typeIdCtx =
-                                                funcCtx->typeIdentifier();
+        PurrscalParser::KittyBreedContext *typeIdCtx =
+                                                funcCtx->kittyBreed();
         visit(typeIdCtx);
         returnType = typeIdCtx->type;
 
@@ -598,14 +524,14 @@ Object Semantics::visitRoutineDefinition(
     return nullptr;
 }
 
-Object Semantics::visitParameterDeclarationsList(
-                            PurrscalParser::ParameterDeclarationsListContext *ctx)
+Object Semantics::visitPurrameterPurrs(
+                            PurrscalParser::PurrameterPurrsContext *ctx)
 {
     vector<SymtabEntry *> *parameterList = new vector<SymtabEntry *>();
 
     // Loop over the parameter declarations.
-    for (PurrscalParser::ParameterDeclarationsContext *dclCtx :
-                                                ctx->parameterDeclarations())
+    for (PurrscalParser::PurrameterPurrContext *dclCtx :
+                                                ctx->purrameterPurr())
     {
         vector<SymtabEntry *> parameterSublist =
                                     visit(dclCtx).as<vector<SymtabEntry *>>();
@@ -615,11 +541,11 @@ Object Semantics::visitParameterDeclarationsList(
     return parameterList;
 }
 
-Object Semantics::visitParameterDeclarations(
-                                PurrscalParser::ParameterDeclarationsContext *ctx)
+Object Semantics::visitPurrameterPurr(
+                                PurrscalParser::PurrameterPurrContext *ctx)
 {
-    Kind kind = ctx->VAR() != nullptr ? REFERENCE_PARAMETER : VALUE_PARAMETER;
-    PurrscalParser::TypeIdentifierContext *typeCtx = ctx->typeIdentifier();
+    Kind kind = ctx->KITTEN() != nullptr ? REFERENCE_PARAMETER : VALUE_PARAMETER;
+    PurrscalParser::KittyBreedContext *typeCtx = ctx->kittyBreed();
 
     visit(typeCtx);
     Typespec *parmType = typeCtx->type;
@@ -627,10 +553,10 @@ Object Semantics::visitParameterDeclarations(
     vector<SymtabEntry *> parameterSublist;
 
     // Loop over the parameter identifiers.
-    PurrscalParser::ParameterIdentifierListContext *listCtx =
-                                                ctx->parameterIdentifierList();
-    for (PurrscalParser::ParameterIdentifierContext *idCtx :
-                                                listCtx->parameterIdentifier())
+    PurrscalParser::PurrameterKittiesContext *listCtx =
+                                                ctx->purrameterKitties();
+    for (PurrscalParser::PurrameterKittyContext *idCtx :
+                                                listCtx->purrameterKitty())
     {
         int lineNumber = idCtx->getStart()->getLine();
         string parmName = toLowerCase(idCtx->KITTY()->getText());
@@ -656,16 +582,16 @@ Object Semantics::visitParameterDeclarations(
     return parameterSublist;
 }
 
-Object Semantics::visitAssignmentStatement(
-                                PurrscalParser::AssignmentStatementContext *ctx)
+Object Semantics::visitHungryMew(
+                                PurrscalParser::HungryMewContext *ctx)
 {
-    PurrscalParser::LhsContext *lhsCtx = ctx->lhs();
-    PurrscalParser::RhsContext *rhsCtx = ctx->rhs();
+    PurrscalParser::LpsContext *lhsCtx = ctx->lps();
+    PurrscalParser::RpsContext *rhsCtx = ctx->rps();
 
     visitChildren(ctx);
 
     Typespec *lhsType = lhsCtx->type;
-    Typespec *rhsType = rhsCtx->expression()->type;
+    Typespec *rhsType = rhsCtx->demand()->type;
 
     if (!TypeChecker::areAssignmentCompatible(lhsType, rhsType))
     {
@@ -675,20 +601,20 @@ Object Semantics::visitAssignmentStatement(
     return nullptr;
 }
 
-Object Semantics::visitLhs(PurrscalParser::LhsContext *ctx)
+Object Semantics::visitLps(PurrscalParser::LpsContext *ctx)
 {
-    PurrscalParser::VariableContext *varCtx = ctx->variable();
+    PurrscalParser::KittenContext *varCtx = ctx->kitten();
     visit(varCtx);
     ctx->type = varCtx->type;
 
     return nullptr;
 }
 
-Object Semantics::visitIfStatement(PurrscalParser::IfStatementContext *ctx)
+Object Semantics::visitSniffMew(PurrscalParser::SniffMewContext *ctx)
 {
-    PurrscalParser::ExpressionContext     *exprCtx  = ctx->expression();
-    PurrscalParser::TrueStatementContext  *trueCtx  = ctx->trueStatement();
-    PurrscalParser::FalseStatementContext *falseCtx = ctx->falseStatement();
+    PurrscalParser::DemandContext     *exprCtx  = ctx->demand();
+    PurrscalParser::PawMewContext  *trueCtx  = ctx->pawMew();
+    PurrscalParser::IgnoreMewContext *falseCtx = ctx->ignoreMew();
 
     visit(exprCtx);
     Typespec *expr_type = exprCtx->type;
@@ -704,82 +630,10 @@ Object Semantics::visitIfStatement(PurrscalParser::IfStatementContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitCaseStatement(PurrscalParser::CaseStatementContext *ctx)
+Object Semantics::visitHowlMew(
+                                    PurrscalParser::HowlMewContext *ctx)
 {
-    PurrscalParser::ExpressionContext *exprCtx = ctx->expression();
-    visit(exprCtx);
-    Typespec *exprType = exprCtx->type;
-    Form exprTypeForm = exprType->getForm();
-
-    if (   (   (exprTypeForm != SCALAR)
-            && (exprTypeForm != ENUMERATION)
-            && (exprTypeForm != SUBRANGE))
-        || (exprType == Predefined::realType)
-        || (exprType == Predefined::stringType))
-    {
-        error.flag(TYPE_MISMATCH, exprCtx);
-        exprType = Predefined::integerType;
-    }
-
-    set<int> constants;
-    PurrscalParser::CaseBranchListContext *branchListCtx = ctx->caseBranchList();
-
-    // Loop over the CASE branches.
-    for (PurrscalParser::CaseBranchContext *branchCtx :
-                                                branchListCtx->caseBranch())
-    {
-        PurrscalParser::CaseConstantListContext *constListCtx =
-                                                branchCtx->caseConstantList();
-        PurrscalParser::StatementContext *stmtCtx = branchCtx->statement();
-
-        if (constListCtx != nullptr)
-        {
-            // Loop over the CASE constants in each branch.
-            for (PurrscalParser::CaseConstantContext *caseConstCtx :
-                                                constListCtx->caseConstant())
-            {
-                PurrscalParser::ConstantContext *constCtx =
-                                                    caseConstCtx->constant();
-                Object constValue = visit(constCtx);
-
-                caseConstCtx->type  = constCtx->type;
-                caseConstCtx->value = 0;
-
-                if (constCtx->type != exprType)
-                {
-                    error.flag(TYPE_MISMATCH, constCtx);
-                }
-                else if (   (constCtx->type == Predefined::integerType)
-                         || (constCtx->type->getForm() == ENUMERATION))
-                {
-                    caseConstCtx->value = constValue.as<int>();
-                }
-                else if (constCtx->type == Predefined::charType)
-                {
-                    caseConstCtx->value = constValue.as<char>();
-                }
-
-                if (constants.find(caseConstCtx->value) != constants.end())
-                {
-                    error.flag(DUPLICATE_CASE_CONSTANT, constCtx);
-                }
-                else
-                {
-                    constants.insert(caseConstCtx->value);
-                }
-            }
-        }
-
-        if (stmtCtx != nullptr) visit(stmtCtx);
-    }
-
-    return nullptr;
-}
-
-Object Semantics::visitRepeatStatement(
-                                    PurrscalParser::RepeatStatementContext *ctx)
-{
-    PurrscalParser::ExpressionContext *exprCtx = ctx->expression();
+    PurrscalParser::DemandContext *exprCtx = ctx->demand();
     visit(exprCtx);
     Typespec *exprType = exprCtx->type;
 
@@ -788,13 +642,13 @@ Object Semantics::visitRepeatStatement(
         error.flag(TYPE_MUST_BE_BOOLEAN, exprCtx);
     }
 
-    visit(ctx->statementList());
+    visit(ctx->mews());
     return nullptr;
 }
 
-Object Semantics::visitWhileStatement(PurrscalParser::WhileStatementContext *ctx)
+Object Semantics::visitPurrMew(PurrscalParser::PurrMewContext *ctx)
 {
-    PurrscalParser::ExpressionContext *exprCtx = ctx->expression();
+    PurrscalParser::DemandContext *exprCtx = ctx->demand();
     visit(exprCtx);
     Typespec *exprType = exprCtx->type;
 
@@ -803,53 +657,16 @@ Object Semantics::visitWhileStatement(PurrscalParser::WhileStatementContext *ctx
         error.flag(TYPE_MUST_BE_BOOLEAN, exprCtx);
     }
 
-    visit(ctx->statement());
+    visit(ctx->mew());
     return nullptr;
 }
 
-Object Semantics::visitForStatement(PurrscalParser::ForStatementContext *ctx)
+Object Semantics::visitYowlCallMew(
+                            PurrscalParser::YowlCallMewContext *ctx)
 {
-    PurrscalParser::VariableContext *varCtx = ctx->variable();
-    visit(varCtx);
-
-    string controlName = toLowerCase(varCtx->variableIdentifier()->getText());
-    Typespec *controlType = Predefined::integerType;
-
-    if (varCtx->entry != nullptr)
-    {
-        controlType = varCtx->type;
-        if (   (controlType->getForm() != SCALAR )
-            || (controlType == Predefined::realType)
-            || (controlType == Predefined::stringType))
-        {
-            error.flag(INVALID_CONTROL_VARIABLE, varCtx);
-        }
-    }
-    else
-    {
-        error.flag(UNDECLARED_KITTY, ctx->getStart()->getLine(),
-                   controlName);
-    }
-
-    PurrscalParser::ExpressionContext *startCtx = ctx->expression()[0];
-    PurrscalParser::ExpressionContext *endCtx   = ctx->expression()[1];
-
-    visit(startCtx);
-    visit(endCtx);
-
-    if (startCtx->type != controlType)  error.flag(TYPE_MISMATCH, startCtx);
-    if (startCtx->type != endCtx->type) error.flag(TYPE_MISMATCH, endCtx);
-
-    visit(ctx->statement());
-    return nullptr;
-}
-
-Object Semantics::visitProcedureCallStatement(
-                            PurrscalParser::ProcedureCallStatementContext *ctx)
-{
-    PurrscalParser::ProcedureNameContext *nameCtx = ctx->procedureName();
-    PurrscalParser::ArgumentListContext *listCtx = ctx->argumentList();
-    string name = toLowerCase(ctx->procedureName()->getText());
+    PurrscalParser::YowlNameContext *nameCtx = ctx->yowlName();
+    PurrscalParser::ChirpsContext *listCtx = ctx->chirps();
+    string name = toLowerCase(ctx->yowlName()->getText());
     SymtabEntry *procedureId = symtabStack->lookup(name);
     bool badName = false;
 
@@ -867,7 +684,7 @@ Object Semantics::visitProcedureCallStatement(
     // Bad procedure name. Do a simple arguments check and then leave.
     if (badName)
     {
-        for (PurrscalParser::ArgumentContext *exprCtx : listCtx->argument())
+        for (PurrscalParser::ChirpContext *exprCtx : listCtx->chirp())
         {
             visit(exprCtx);
         }
@@ -884,13 +701,13 @@ Object Semantics::visitProcedureCallStatement(
     return nullptr;
 }
 
-Object Semantics::visitFunctionCallFactor(
-                                PurrscalParser::FunctionCallFactorContext *ctx)
+Object Semantics::visitBlepCallExpectation(
+                                PurrscalParser::BlepCallExpectationContext *ctx)
 {
-    PurrscalParser::FunctionCallContext *callCtx = ctx->functionCall();
-    PurrscalParser::FunctionNameContext *nameCtx = callCtx->functionName();
-    PurrscalParser::ArgumentListContext *listCtx = callCtx->argumentList();
-    string name = toLowerCase(callCtx->functionName()->getText());
+    PurrscalParser::BlepCallContext *callCtx = ctx->blepCall();
+    PurrscalParser::BlepNameContext *nameCtx = callCtx->blepName();
+    PurrscalParser::ChirpsContext *listCtx = callCtx->chirps();
+    string name = toLowerCase(callCtx->blepName()->getText());
     SymtabEntry *functionId = symtabStack->lookup(name);
     bool badName = false;
 
@@ -901,7 +718,7 @@ Object Semantics::visitFunctionCallFactor(
         error.flag(UNDECLARED_KITTY, nameCtx);
         badName = true;
     }
-    else if (functionId->getKind() != FUNCTION)
+    else if (functionId->getKind() != BLEP)
     {
         error.flag(NAME_MUST_BE_FUNCTION, nameCtx);
         badName = true;
@@ -910,7 +727,7 @@ Object Semantics::visitFunctionCallFactor(
     // Bad function name. Do a simple arguments check and then leave.
     if (badName)
     {
-        for (PurrscalParser::ArgumentContext *exprCtx : listCtx->argument())
+        for (PurrscalParser::ChirpContext *exprCtx : listCtx->chirp())
         {
             visit(exprCtx);
         }
@@ -931,10 +748,10 @@ Object Semantics::visitFunctionCallFactor(
 }
 
 void Semantics::checkCallArguments(
-        PurrscalParser::ArgumentListContext *listCtx, vector<SymtabEntry *> *parms)
+        PurrscalParser::ChirpsContext *listCtx, vector<SymtabEntry *> *parms)
 {
     int parmsCount = parms->size();
-    int argsCount = listCtx != nullptr ? listCtx->argument().size() : 0;
+    int argsCount = listCtx != nullptr ? listCtx->chirp().size() : 0;
 
     if (parmsCount != argsCount)
     {
@@ -945,8 +762,8 @@ void Semantics::checkCallArguments(
     // Check each argument against the corresponding parameter.
     for (int i = 0; i < parmsCount; i++)
     {
-        PurrscalParser::ArgumentContext *argCtx = listCtx->argument()[i];
-        PurrscalParser::ExpressionContext *exprCtx = argCtx->expression();
+        PurrscalParser::ChirpContext *argCtx = listCtx->chirp()[i];
+        PurrscalParser::DemandContext *exprCtx = argCtx->demand();
         visit(exprCtx);
 
         SymtabEntry *parmId = (*parms)[i];
@@ -979,23 +796,23 @@ void Semantics::checkCallArguments(
     }
 }
 
-bool Semantics::expressionIsVariable(PurrscalParser::ExpressionContext *exprCtx)
+bool Semantics::expressionIsVariable(PurrscalParser::DemandContext *exprCtx)
 {
     // Only a single simple expression?
-    if (exprCtx->simpleExpression().size() == 1)
+    if (exprCtx->chonkDemand().size() == 1)
     {
-        PurrscalParser::SimpleExpressionContext *simpleCtx =
-                                                exprCtx->simpleExpression()[0];
+        PurrscalParser::ChonkDemandContext *simpleCtx =
+                                                exprCtx->chonkDemand()[0];
         // Only a single term?
-        if (simpleCtx->term().size() == 1)
+        if (simpleCtx->trill().size() == 1)
         {
-            PurrscalParser::TermContext *termCtx = simpleCtx->term()[0];
+            PurrscalParser::TrillContext *termCtx = simpleCtx->trill()[0];
 
             // Only a single factor?
-            if (termCtx->factor().size() == 1)
+            if (termCtx->expectation().size() == 1)
             {
-                return dynamic_cast<PurrscalParser::VariableFactorContext *>(
-                                            termCtx->factor()[0]) != nullptr;
+                return dynamic_cast<PurrscalParser::KittenExpectationContext *>(
+                                            termCtx->expectation()[0]) != nullptr;
             }
         }
     }
@@ -1003,9 +820,9 @@ bool Semantics::expressionIsVariable(PurrscalParser::ExpressionContext *exprCtx)
     return false;
 }
 
-Object Semantics::visitExpression(PurrscalParser::ExpressionContext *ctx)
+Object Semantics::visitDemand(PurrscalParser::DemandContext *ctx)
 {
-    PurrscalParser::SimpleExpressionContext *simpleCtx1 = ctx->simpleExpression()[0];
+    PurrscalParser::ChonkDemandContext *simpleCtx1 = ctx->chonkDemand()[0];
 
     // First simple expression.
     visit(simpleCtx1);
@@ -1013,13 +830,13 @@ Object Semantics::visitExpression(PurrscalParser::ExpressionContext *ctx)
     Typespec *simpleType1 = simpleCtx1->type;
     ctx->type = simpleType1;
 
-    PurrscalParser::RelOpContext *relopCtx = ctx->relOp();
+    PurrscalParser::RelationalWhiskerContext *relopCtx = ctx->relationalWhisker();
 
     // Second simple expression?
     if (relopCtx != nullptr)
     {
-        PurrscalParser::SimpleExpressionContext *simpleCtx2 =
-                                                    ctx->simpleExpression()[1];
+        PurrscalParser::ChonkDemandContext *simpleCtx2 =
+                                                    ctx->chonkDemand()[1];
         visit(simpleCtx2);
 
         Typespec *simpleType2 = simpleCtx2->type;
@@ -1034,13 +851,13 @@ Object Semantics::visitExpression(PurrscalParser::ExpressionContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitSimpleExpression(
-                                    PurrscalParser::SimpleExpressionContext *ctx)
+Object Semantics::visitChonkDemand(
+                                    PurrscalParser::ChonkDemandContext *ctx)
 {
-    int count = ctx->term().size();
-    PurrscalParser::SignContext *signCtx = ctx->sign();
+    int count = ctx->trill().size();
+    PurrscalParser::FurContext *signCtx = ctx->fur();
     bool hasSign = signCtx != nullptr;
-    PurrscalParser::TermContext *termCtx1 = ctx->term()[0];
+    PurrscalParser::TrillContext *termCtx1 = ctx->trill()[0];
 
     if (hasSign)
     {
@@ -1058,30 +875,12 @@ Object Semantics::visitSimpleExpression(
     // Loop over any subsequent terms.
     for (int i = 1; i < count; i++)
     {
-        string op = toLowerCase(ctx->addOp()[i-1]->getText());
-        PurrscalParser::TermContext *termCtx2 = ctx->term()[i];
+        string op = toLowerCase(ctx->additiveWhisker()[i-1]->getText());
+        PurrscalParser::TrillContext *termCtx2 = ctx->trill()[i];
         visit(termCtx2);
         Typespec *termType2 = termCtx2->type;
 
-        // Both operands bool ==> bool result. Else type mismatch.
-        if (op == "or")
-        {
-            if (!TypeChecker::isBoolean(termType1))
-            {
-                error.flag(TYPE_MUST_BE_BOOLEAN, termCtx1);
-            }
-            if (!TypeChecker::isBoolean(termType2))
-            {
-                error.flag(TYPE_MUST_BE_BOOLEAN, termCtx2);
-            }
-            if (hasSign)
-            {
-                error.flag(INVALID_SIGN, signCtx);
-            }
-
-            termType2 = Predefined::booleanType;
-        }
-        else if (op == "+")
+        if (op == "+")
         {
             // Both operands integer ==> integer result
             if (TypeChecker::areBothInteger(termType1, termType2))
@@ -1156,10 +955,10 @@ Object Semantics::visitSimpleExpression(
     return nullptr;
 }
 
-Object Semantics::visitTerm(PurrscalParser::TermContext *ctx)
+Object Semantics::visitTrill(PurrscalParser::TrillContext *ctx)
 {
-    int count = ctx->factor().size();
-    PurrscalParser::FactorContext *factorCtx1 = ctx->factor()[0];
+    int count = ctx->expectation().size();
+    PurrscalParser::ExpectationContext *factorCtx1 = ctx->expectation()[0];
 
     // First factor.
     visit(factorCtx1);
@@ -1168,8 +967,8 @@ Object Semantics::visitTerm(PurrscalParser::TermContext *ctx)
     // Loop over any subsequent factors.
     for (int i = 1; i < count; i++)
     {
-        string op = toLowerCase(ctx->mulOp()[i-1]->getText());
-        PurrscalParser::FactorContext *factorCtx2 = ctx->factor()[i];
+        string op = toLowerCase(ctx->multiplicativeWhisker()[i-1]->getText());
+        PurrscalParser::ExpectationContext *factorCtx2 = ctx->expectation()[i];
         visit(factorCtx2);
         Typespec *factorType2 = factorCtx2->type;
 
@@ -1227,36 +1026,7 @@ Object Semantics::visitTerm(PurrscalParser::TermContext *ctx)
                 }
             }
         }
-        else if ((op == "div") ||(op == "mod"))
-        {
-            // Both operands integer ==> integer result. Else type mismatch.
-            if (!TypeChecker::isInteger(factorType1))
-            {
-                error.flag(TYPE_MUST_BE_INTEGER, factorCtx1);
-                factorType2 = Predefined::integerType;
-            }
-            if (!TypeChecker::isInteger(factorType2))
-            {
-                error.flag(TYPE_MUST_BE_INTEGER, factorCtx2);
-                factorType2 = Predefined::integerType;
-            }
 
-            ctx->type = Predefined::integerType;
-        }
-        else if (op == "and")
-        {
-            // Both operands bool ==> bool result. Else type mismatch.
-            if (!TypeChecker::isBoolean(factorType1))
-            {
-                error.flag(TYPE_MUST_BE_BOOLEAN, factorCtx1);
-                factorType2 = Predefined::booleanType;
-            }
-            if (!TypeChecker::isBoolean(factorType2))
-            {
-                error.flag(TYPE_MUST_BE_BOOLEAN, factorCtx2);
-                factorType2 = Predefined::booleanType;
-            }
-        }
 
         factorType1 = factorType2;
     }
@@ -1265,19 +1035,19 @@ Object Semantics::visitTerm(PurrscalParser::TermContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitVariableFactor(PurrscalParser::VariableFactorContext *ctx)
+Object Semantics::visitKittenExpectation(PurrscalParser::KittenExpectationContext *ctx)
 {
-    PurrscalParser::VariableContext *varCtx = ctx->variable();
+    PurrscalParser::KittenContext *varCtx = ctx->kitten();
     visit(varCtx);
     ctx->type = varCtx->type;
 
     return nullptr;
 }
 
-Object Semantics::visitVariable(PurrscalParser::VariableContext *ctx)
+Object Semantics::visitKitten(PurrscalParser::KittenContext *ctx)
 {
-    PurrscalParser::VariableIdentifierContext *varIdCtx =
-                                                    ctx->variableIdentifier();
+    PurrscalParser::KittenKittyContext *varIdCtx =
+                                                    ctx->kittenKitty();
 
     visit(varIdCtx);
     ctx->entry = varIdCtx->entry;
@@ -1286,8 +1056,8 @@ Object Semantics::visitVariable(PurrscalParser::VariableContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitVariableIdentifier(
-                                PurrscalParser::VariableIdentifierContext *ctx)
+Object Semantics::visitKittenKitty(
+                                PurrscalParser::KittenKittyContext *ctx)
 {
 
     string variableName = toLowerCase(ctx->KITTY()->getText());
@@ -1303,7 +1073,7 @@ Object Semantics::visitVariableIdentifier(
         Kind kind = variableId->getKind();
         switch (kind)
         {
-            case TYPE:
+            case BREED:
             case PURRGRAM:
             case PURRGRAM_PARAMETER:
             case YOWL:
@@ -1323,7 +1093,7 @@ Object Semantics::visitVariableIdentifier(
     return nullptr;
 }
 
-Typespec *Semantics::variableDatatype(PurrscalParser::VariableContext *varCtx,
+Typespec *Semantics::variableDatatype(PurrscalParser::KittenContext *varCtx,
                                       Typespec *varType)
 {
     Typespec *type = varType;
@@ -1331,18 +1101,18 @@ Typespec *Semantics::variableDatatype(PurrscalParser::VariableContext *varCtx,
     for (PurrscalParser::ModifierContext *modCtx : varCtx->modifier())
     {
         // Subscripts.
-        if (modCtx->indexList() != nullptr)
+        if (modCtx->indices() != nullptr)
         {
-            PurrscalParser::IndexListContext *indexListCtx = modCtx->indexList();
+            PurrscalParser::IndicesContext *indexListCtx = modCtx->indices();
 
             // Loop over the subscripts.
             for (PurrscalParser::IndexContext *indexCtx : indexListCtx->index())
             {
-                if (type->getForm() == ARRAY)
+                if (type->getForm() == KABOODLE)
                 {
                     Typespec *indexType = type->getArrayIndexType();
-                    PurrscalParser::ExpressionContext *exprCtx =
-                                                        indexCtx->expression();
+                    PurrscalParser::DemandContext *exprCtx =
+                                                        indexCtx->demand();
                     visit(exprCtx);
 
                     if (indexType->baseType() != exprCtx->type->baseType())
@@ -1359,45 +1129,21 @@ Typespec *Semantics::variableDatatype(PurrscalParser::VariableContext *varCtx,
                 }
             }
         }
-        else // Record field.
+        else
         {
-            if (type->getForm() == RECORD)
-            {
-                Symtab *symtab = type->getRecordSymtab();
-                PurrscalParser::FieldContext *fieldCtx = modCtx->field();
-                string fieldName =
-                                toLowerCase(fieldCtx->KITTY()->getText());
-                SymtabEntry *fieldId = symtab->lookup(fieldName);
+                            error.flag(INVALID_FIELD, modCtx);
 
-                if (fieldId != nullptr)
-                {
-                    type = fieldId->getType();
-                    fieldCtx->entry = fieldId;
-                    fieldCtx->type = type;
-                    fieldId->appendLineNumber(modCtx->getStart()->getLine());
-                }
-                else
-                {
-                    error.flag(INVALID_FIELD, modCtx);
-                }
-            }
-
-            // Not a record variable.
-            else
-            {
-                error.flag(INVALID_FIELD, modCtx);
-            }
         }
     }
 
     return type;
 }
 
-Object Semantics::visitNumberFactor(PurrscalParser::NumberFactorContext *ctx)
+Object Semantics::visitFelineExpectation(PurrscalParser::FelineExpectationContext *ctx)
 {
-    PurrscalParser::NumberContext          *numberCtx   = ctx->number();
-    PurrscalParser::UnsignedNumberContext  *unsignedCtx = numberCtx->unsignedNumber();
-    PurrscalParser::IntegerConstantContext *integerCtx  = unsignedCtx->integerConstant();
+    PurrscalParser::FelineContext          *numberCtx   = ctx->feline();
+    PurrscalParser::HairlessFelineContext  *unsignedCtx = numberCtx->hairlessFeline();
+    PurrscalParser::SphynxDomesticContext *integerCtx  = unsignedCtx->sphynxDomestic();
 
     ctx->type = (integerCtx != nullptr) ? Predefined::integerType
                                         : Predefined::realType;
@@ -1405,21 +1151,21 @@ Object Semantics::visitNumberFactor(PurrscalParser::NumberFactorContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitCharacterFactor(PurrscalParser::CharacterFactorContext *ctx)
+Object Semantics::visitThreadBallExpectation(PurrscalParser::ThreadBallExpectationContext *ctx)
 {
     ctx->type = Predefined::charType;
     return nullptr;
 }
 
-Object Semantics::visitStringFactor(PurrscalParser::StringFactorContext *ctx)
+Object Semantics::visitYarnBallExpectation(PurrscalParser::YarnBallExpectationContext *ctx)
 {
     ctx->type = Predefined::stringType;
     return nullptr;
 }
 
-Object Semantics::visitNotFactor(PurrscalParser::NotFactorContext *ctx)
+Object Semantics::visitRollExpectation(PurrscalParser::RollExpectationContext *ctx)
 {
-    PurrscalParser::FactorContext *factorCtx = ctx->factor();
+    PurrscalParser::ExpectationContext *factorCtx = ctx->expectation();
     visit(factorCtx);
 
     if (factorCtx->type != Predefined::booleanType)
@@ -1431,10 +1177,10 @@ Object Semantics::visitNotFactor(PurrscalParser::NotFactorContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitParenthesizedFactor(
-                                PurrscalParser::ParenthesizedFactorContext *ctx)
+Object Semantics::visitParenthesizedExpectation(
+                                PurrscalParser::ParenthesizedExpectationContext *ctx)
 {
-    PurrscalParser::ExpressionContext *exprCtx = ctx->expression();
+    PurrscalParser::DemandContext *exprCtx = ctx->demand();
     visit(exprCtx);
     ctx->type = exprCtx->type;
 

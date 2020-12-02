@@ -40,7 +40,7 @@ private:
     static const string NUMBERS_LABEL;
     static const string NUMBERS_UNDERLINE;
     static const string NUMBER_FORMAT;
-    static const string ENUM_CONST_FORMAT;
+    static const string ENUM_DOMESTIC_FORMAT;
 
     static const int LABEL_WIDTH;
     static const int INDENT_WIDTH;
@@ -63,15 +63,14 @@ private:
      * @param symtab the symbol table.
      * @param recordTypes the list to fill with RECORD type specifications.
      */
-    void printSymtab(Symtab *symtab,
-                     vector<Typespec *>& recordTypes) const;
+    void printSymtab(Symtab *symtab) const;
 
     /**
      * Print a symbol table entry.
      * @param entry the symbol table entry.
      * @param recordTypes the list to fill with RECORD type specifications.
      */
-    void printEntry(SymtabEntry *entry, vector<Typespec *>& recordTypes) const;
+    void printEntry(SymtabEntry *entry) const;
 
     /**
      * Print a type specification.
@@ -84,16 +83,9 @@ private:
      * @param typespec the type specification.
      * @param recordTypes the list to fill with RECORD type specifications.
      */
-    void printTypeDetail(Typespec *typespec,
-                         vector<Typespec *>& recordTypes) const;
+    void printTypeDetail(Typespec *type) const;
 
-    /**
-     * Print cross-reference tables for records defined in the routine.
-     * @param recordTypes the list to fill with RECORD type specifications.
-     */
-    void printRecords(vector<Typespec *>& recordTypes) const;
-
-    /**
+      /**
      * Convert a value to a string.
      * @param value the value.
      * @param type the value's datatype.

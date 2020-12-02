@@ -71,10 +71,10 @@ void CodeGenerator::emitComment(string text)
 }
 
 /**
- * Emit a statement comment.
- * @param ctx the StatementContext.
+ * Emit a mew comment.
+ * @param ctx the MewContext.
  */
-void CodeGenerator::emitComment(PurrscalParser::StatementContext *ctx)
+void CodeGenerator::emitComment(PurrscalParser::MewContext *ctx)
 {
     string text = ctx->getText();
     if (text.length() > 70) text = text.substr(0, 70) + " ...";
@@ -374,10 +374,6 @@ void CodeGenerator::emitStoreValue(SymtabEntry *targetId, Typespec *targetType)
     {
         emitStoreToArrayElement(targetType);
     }
-    else if (targetId->getKind() == RECORD_FIELD)
-    {
-        emitStoreToRecordField(targetId);
-    }
     else
     {
         emitStoreToUnmodifiedVariable(targetId, targetType);
@@ -473,18 +469,6 @@ void CodeGenerator::emitStoreToArrayElement(Typespec *elmtType)
          :                                       AASTORE);
 }
 
-void CodeGenerator::emitStoreToRecordField(SymtabEntry *fieldId)
-{
-    string fieldName = fieldId->getName();
-    Typespec *fieldType = fieldId->getType();
-    Typespec *recordType = fieldId->getSymtab()->getOwner()->getType();
-
-    string recordTypePath = recordType->getRecordTypePath();
-    string fieldPath = recordTypePath + "/" + fieldName;
-
-    emit(PUTFIELD, fieldPath, typeDescriptor(fieldType));
-}
-
 // ======================
 // Miscellaneous emitters
 // ======================
@@ -563,7 +547,7 @@ string CodeGenerator::typeDescriptor(Typespec *PurrscalType)
     Form form = PurrscalType->getForm();
     string descriptor;
 
-    while (form == ARRAY)
+    while (form == KABOODLE)
     {
         descriptor += "[";
         PurrscalType =  PurrscalType->getArrayElementType();
@@ -579,7 +563,6 @@ string CodeGenerator::typeDescriptor(Typespec *PurrscalType)
     else if (PurrscalType == Predefined::charType)    str = "C";
     else if (PurrscalType == Predefined::stringType)  str = "Ljava/lang/String;";
     else if (form == ENUMERATION)                  str = "I";
-    else /* (form == RECORD) */ str = "L" + PurrscalType->getRecordTypePath() + ";";
 
     descriptor += str;
     return descriptor;
@@ -591,7 +574,7 @@ string CodeGenerator::objectTypeName(Typespec *PurrscalType)
     string typeName;
     bool isArray = false;
 
-    while (form == ARRAY)
+    while (form == KABOODLE)
     {
         typeName += "[";
         PurrscalType = PurrscalType->getArrayElementType();
@@ -610,7 +593,6 @@ string CodeGenerator::objectTypeName(Typespec *PurrscalType)
     else if (PurrscalType == Predefined::charType)    str = "java/lang/Character";
     else if (PurrscalType == Predefined::stringType)  str = "Ljava/lang/String;";
     else if (form == ENUMERATION)                  str = "java/lang/Integer";
-    else /* (form == RECORD) */ str = "L" + PurrscalType->getRecordTypePath() + ";";
 
     typeName += str;
     if (isArray) typeName += ";";
@@ -626,7 +608,7 @@ bool CodeGenerator::needsCloning(SymtabEntry *formalId)
     // Arrays and records are normally passed by reference
     // and so must be cloned to be passed by value.
     return (   (kind == VALUE_PARAMETER))
-            && ((form == ARRAY) || (form == RECORD));
+            && ((form == KABOODLE));
 }
 
 string CodeGenerator::valueOfSignature(Typespec *type)

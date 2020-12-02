@@ -9,195 +9,174 @@ grammar Purrscal;
 }
 
 purrgram           : purrgramHeader cat '.' ;
-purrgramHeader     : PURRGRAM purrgramIdentifier purrgramParameters? ';' ; 
-purrgramParameters : '(' KITTY ( ',' KITTY )* ')' ;
+purrgramHeader     : PURRGRAM purrgramIdentifier purrgramPurrameters? ';' ; 
+purrgramPurrameters : '(' KITTY ( ',' KITTY )* ')' ;
 
 purrgramIdentifier   locals [ SymtabEntry *entry = nullptr ]
     : KITTY ;
 
 cat         : catQualities theBigMew ;
-catQualities  : ( constantsPart ';' )? ( typesPart ';' )? 
-                ( variablesPart ';' )? ( routinesPart ';')? ;
+catQualities  : ( domesticQuality ';' )? ( breedQuality ';' )? 
+                ( kittenQuality ';' )? ( callQuality ';')? ;
 
-constantsPart           : CONST constantDefinitionsList ;
-constantDefinitionsList : constantDefinition ( ';' constantDefinition )* ;
-constantDefinition      : constantIdentifier '=' constant ;
+domesticQuality           : DOMESTIC domesticBodies ;
+domesticBodies : domesticBody ( ';' domesticBody )* ;
+domesticBody      : domesticKitty '=' domestic ;
 
-constantIdentifier  locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
+domesticKitty  locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
     : KITTY ;
 
-constant            locals [ Typespec *type = nullptr, Object value = nullptr ]  
-    : sign? ( KITTY | unsignedNumber )
-    | characterConstant
-    | stringConstant
+domestic            locals [ Typespec *type = nullptr, Object value = nullptr ]  
+    : fur? ( KITTY | hairlessFeline )
+    | threadBall
+    | yarnBall
     ;
 
-sign : '-' | '+' ;
+fur : '-' | '+' ;
 
-typesPart           : TYPE typeDefinitionsList ;
-typeDefinitionsList : typeDefinition ( ';' typeDefinition )* ;
-typeDefinition      : typeIdentifier '=' typeSpecification ;
+breedQuality           : BREED breedBodies ;
+breedBodies : breedBody ( ';' breedBody )* ;
+breedBody      : kittyBreed '=' breed ;
 
-typeIdentifier      locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
+kittyBreed      locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
     : KITTY ;
 
-typeSpecification   locals [ Typespec *type = nullptr ]
-    : simpleType        # simpleTypespec
-    | arrayType         # arrayTypespec 
-    | recordType        # recordTypespec
+breed   locals [ Typespec *type = nullptr ]
+    : chonk        # chonkspec
+    | kaboodle         # kaboodlespec 
     ;
 
-simpleType          locals [ Typespec *type = nullptr ] 
-    : typeIdentifier    # typeIdentifierTypespec 
-    | enumerationType   # enumerationTypespec
-    | subrangeType      # subrangeTypespec
+chonk          locals [ Typespec *type = nullptr ] 
+    : kittyBreed    # kittyBreedTypespec 
+    | fluffball   # fluffballspec
+    | kittenKaboodle      # kittenKaboodlespec
     ;
            
-enumerationType     : '(' enumerationConstant ( ',' enumerationConstant )* ')' ;
-enumerationConstant : constantIdentifier ;
-subrangeType        : constant '..' constant ;
+fluffball     : '(' fluffballDomestic ( ',' fluffballDomestic )* ')' ;
+fluffballDomestic : domesticKitty ;
+kittenKaboodle        : domestic '..' domestic ;
 
-arrayType
-    : ARRAY '[' arrayDimensionList ']' OF typeSpecification ;
-arrayDimensionList : simpleType ( ',' simpleType )* ;
+kaboodle
+    : KABOODLE '[' kaboodleList ']' OF breed ;
+kaboodleList : chonk ( ',' chonk )* ;
 
-recordType          locals [ SymtabEntry *entry = nullptr ]   
-    : RECORD recordFields ';'? END ;
-recordFields : variableDeclarationsList ;
-           
-variablesPart            : VAR variableDeclarationsList ;
-variableDeclarationsList : variableDeclarations ( ';' variableDeclarations )* ;
-variableDeclarations     : variableIdentifierList ':' typeSpecification ;
-variableIdentifierList   : variableIdentifier ( ',' variableIdentifier )* ;
+kittenQuality            : KITTEN kittenBodies ;
+kittenBodies : kittenBody ( ';' kittenBody )* ;
+kittenBody     : kittenKitties ':' breed ;
+kittenKitties   : kittenKitty ( ',' kittenKitty )* ;
 
-variableIdentifier  locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ] 
+kittenKitty  locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ] 
     : KITTY ;
 
-routinesPart      : routineDefinition ( ';' routineDefinition)* ;
-routineDefinition : ( procedureHead | functionHead ) ';' cat ;
-procedureHead     : YOWL routineIdentifier parameters? ;
-functionHead      : FUNCTION  routineIdentifier parameters? ':' typeIdentifier ;
+callQuality      : callBody ( ';' callBody)* ;
+callBody : ( yowlSnoot | blepSnoot ) ';' cat ;
+yowlSnoot     : YOWL callKitty purrameters? ;
+blepSnoot      : BLEP  callKitty purrameters? ':' kittyBreed ;
 
-routineIdentifier   locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
+callKitty   locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
     : KITTY ;
 
-parameters                : '(' parameterDeclarationsList ')' ;
-parameterDeclarationsList : parameterDeclarations ( ';' parameterDeclarations )* ;
-parameterDeclarations     : VAR? parameterIdentifierList ':' typeIdentifier ;
-parameterIdentifierList   : parameterIdentifier ( ',' parameterIdentifier )* ;
+purrameters                : '(' purrameterPurrs ')' ;
+purrameterPurrs : purrameterPurr ( ';' purrameterPurr )* ;
+purrameterPurr     : KITTEN? purrameterKitties ':' kittyBreed ;
+purrameterKitties   : purrameterKitty ( ',' purrameterKitty )* ;
 
-parameterIdentifier   locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
+purrameterKitty   locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
     : KITTY ;
 
-statement : theBigMew
-          | assignmentStatement
-          | ifStatement
-          | caseStatement
-          | repeatStatement
-          | whileStatement
-          | forStatement
-          | meowStatement
-          | mrrowStatement
-          | readStatement
-          | readlnStatement
-          | procedureCallStatement
-          | emptyStatement
+mew : theBigMew
+          | hungryMew
+          | sniffMew
+          | howlMew
+          | purrMew
+          | meowMew
+          | mrrrMew
+          | stalkMew
+          | pounceMew
+          | yowlCallMew
+          | blankStare
           ;
 
-theBigMew : BEGIN statementList END ;
-emptyStatement : ;
+theBigMew : PLAY mews NAP ;
+blankStare : ;
      
-statementList       : statement ( ';' statement )* ;
-assignmentStatement : lhs ':=' rhs ;
+mews       : mew ( ';' mew )* ;
+hungryMew : lps ':=' rps ;
 
-lhs                 locals [ Typespec *type = nullptr ] 
-    : variable ;
-rhs : expression ;
+lps                 locals [ Typespec *type = nullptr ] 
+    : kitten ;
+rps : demand ;
 
-ifStatement    : IF expression THEN trueStatement ( ELSE falseStatement )? ;
-trueStatement  : statement ;
-falseStatement : statement ;
+sniffMew    : SNIFF demand PAW pawMew ( IGNORE ignoreMew )? ;
+pawMew  : mew ;
+ignoreMew : mew ;
 
-caseStatement
-        locals [ map<int, PurrscalParser::StatementContext*> *jumpTable = nullptr ]
-    : CASE expression OF caseBranchList END ;
-    
-caseBranchList   : caseBranch ( ';' caseBranch )* ;
-caseBranch       : caseConstantList ':' statement | ;
-caseConstantList : caseConstant ( ',' caseConstant )* ;
+howlMew : HOWL mews UNTIL demand ;
+purrMew  : WHILE demand PURR mew ;
 
-caseConstant        locals [ Typespec *type = nullptr, int value = 0 ]
-    : constant ;
+yowlCallMew : yowlName '(' chirps? ')' ;
 
-repeatStatement : REPEAT statementList UNTIL expression ;
-whileStatement  : WHILE expression DO statement ;
-
-forStatement : FOR variable ':=' expression 
-                    ( TO | DOWNTO ) expression DO statement ;
-
-procedureCallStatement : procedureName '(' argumentList? ')' ;
-
-procedureName   locals [ SymtabEntry *entry = nullptr ] 
+yowlName   locals [ SymtabEntry *entry = nullptr ] 
     : KITTY ;
 
-argumentList : argument ( ',' argument )* ;
-argument     : expression ;
+chirps : chirp ( ',' chirp )* ;
+chirp     : demand ;
 
-meowStatement   : MEOW meowArguments ;
-mrrowStatement  : MRROW meowArguments? ;
-meowArguments   : '(' meowArgument (',' meowArgument)* ')' ;
-meowArgument    : expression (':' fieldWidth)? ;
-fieldWidth       : sign? integerConstant (':' decimalPlaces)? ;
-decimalPlaces    : integerConstant ;
+meowMew   : MEOW meows ;
+mrrrMew  : MRRR meows? ;
+meows   : '(' meow (',' meow)* ')' ;
+meow    : demand (':' chungusWidth)? ;
+chungusWidth       : fur? sphynxDomestic (':' toeBeanPlaces)? ;
+toeBeanPlaces    : sphynxDomestic ;
 
-readStatement   : READ readArguments ;
-readlnStatement : READLN readArguments ;
-readArguments   : '(' variable ( ',' variable )* ')' ;
+stalkMew   : STALK mrowus ;
+pounceMew : POUNCE mrowus ;
+mrowus   : '(' kitten ( ',' kitten )* ')' ;
 
-expression          locals [ Typespec *type = nullptr ] 
-    : simpleExpression (relOp simpleExpression)? ;
+demand          locals [ Typespec *type = nullptr ] 
+    : chonkDemand (relationalWhisker chonkDemand)? ;
     
-simpleExpression    locals [ Typespec *type = nullptr ] 
-    : sign? term (addOp term)* ;
+chonkDemand    locals [ Typespec *type = nullptr ] 
+    : fur? trill (additiveWhisker trill)* ;
     
-term                locals [ Typespec *type = nullptr ]
-    : factor (mulOp factor)* ;
+trill                locals [ Typespec *type = nullptr ]
+    : expectation (multiplicativeWhisker expectation)* ;
 
-factor              locals [ Typespec *type = nullptr ] 
-    : variable             # variableFactor
-    | number               # numberFactor
-    | characterConstant    # characterFactor
-    | stringConstant       # stringFactor
-    | functionCall         # functionCallFactor
-    | NOT factor           # notFactor
-    | '(' expression ')'   # parenthesizedFactor
+expectation              locals [ Typespec *type = nullptr ] 
+    : kitten             # kittenExpectation
+    | feline               # felineExpectation
+    | threadBall    # threadBallExpectation
+    | yarnBall       # yarnBallExpectation
+    | blepCall         # blepCallExpectation
+    | ROLL expectation           # rollExpectation
+    | '(' demand ')'   # parenthesizedExpectation
     ;
 
-variable        locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ] 
-    : variableIdentifier modifier* ;
+kitten        locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ] 
+    : kittenKitty modifier* ;
 
-modifier  : '[' indexList ']' | '.' field ;
-indexList : index ( ',' index )* ;
-index     : expression ; 
+modifier  : '[' indices ']' | '.' chungus ;
+indices : index ( ',' index )* ;
+index     : demand ; 
 
-field           locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]     
+chungus           locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]     
     : KITTY ;
 
-functionCall : functionName '(' argumentList? ')' ;
-functionName    locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ] 
+blepCall : blepName '(' chirps? ')' ;
+blepName    locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ] 
     : KITTY ;
      
-number          : sign? unsignedNumber ;
-unsignedNumber  : integerConstant | realConstant ;
-integerConstant : INTEGER ;
-realConstant    : REAL;
+feline          : fur? hairlessFeline ;
+hairlessFeline  : sphynxDomestic | hairlessFelineDomestic ;
+sphynxDomestic : SPHYNX ;
+hairlessFelineDomestic    : HAIRLESS_FELINE;
 
-characterConstant : CHARACTER ;
-stringConstant    : STRING ;
+threadBall : THREAD ;
+yarnBall    : YARN ;
        
-relOp : '=' | '<>' | '<' | '<=' | '>' | '>=' ;
-addOp : '+' | '-' | OR ;
-mulOp : '*' | '/' | DIV | MOD | AND ;
+relationalWhisker : '=' | '<>' | '<' | '<=' | '>' | '>=' ;
+additiveWhisker : '+' | '-' ;
+multiplicativeWhisker : '*' | '/' ;
 
 fragment A : ('a' | 'A') ;
 fragment B : ('b' | 'B') ;
@@ -227,56 +206,47 @@ fragment Y : ('y' | 'Y') ;
 fragment Z : ('z' | 'Z') ;
 
 PURRGRAM  : P U R R G R A M ;
-CONST     : C O N S T ;
-TYPE      : T Y P E ;
-ARRAY     : A R R A Y ;
+DOMESTIC     : D O M E S T I C ;
+BREED      : B R E E D ;
+KABOODLE     : K A B O O D L E ;
 OF        : O F ;
-RECORD    : R E C O R D ;
-VAR       : V A R ;
-BEGIN     : B E G I N ;
-END       : E N D ;
-DIV       : D I V ;
-MOD       : M O D ;
-AND       : A N D ;
-OR        : O R ;
-NOT       : N O T ;
-IF        : I F ;
-THEN      : T H E N ;
-ELSE      : E L S E ;
-CASE      : C A S E ;
-REPEAT    : R E P E A T ;
+KITTEN       : K I T T E N ;
+PLAY     : P L A Y ;
+NAP       : N A P ;
+ROLL       : R O L L ;
+SNIFF        : S N I F F ;
+PAW      : P A W ;
+IGNORE      : I G N O R E ;
+HOWL    : H O W L ;
 UNTIL     : U N T I L ;
 WHILE     : W H I L E ;
-DO        : D O ;
-FOR       : F O R ;
-TO        : T O ;
-DOWNTO    : D O W N T O ;
+PURR        : P U R R ;
 MEOW      : M E O W ;
-MRROW     : M R R O W ;
-READ      : R E A D ;
-READLN    : R E A D L N ;
+MRRR     : M R R R ;
+STALK      : S T A L K ;
+POUNCE    : P O U N C E ;
 YOWL 	  : Y O W L ;
-FUNCTION  : F U N C T I O N ;
+BLEP  : B L E P ;
 
 KITTY : [a-zA-Z][a-zA-Z0-9]* ;
-INTEGER    : [0-9]+ ;
+SPHYNX    : [0-9]+ ;
 
-REAL       : INTEGER '.' INTEGER
-           | INTEGER ('e' | 'E') ('+' | '-')? INTEGER
-           | INTEGER '.' INTEGER ('e' | 'E') ('+' | '-')? INTEGER
+HAIRLESS_FELINE       : SPHYNX '.' SPHYNX
+           | SPHYNX ('e' | 'E') ('+' | '-')? SPHYNX
+           | SPHYNX '.' SPHYNX ('e' | 'E') ('+' | '-')? SPHYNX
            ;
 
 NEWLINE : '\r'? '\n' -> skip  ;
 WS      : [ \t]+ -> skip ; 
 
 QUOTE     : '\'' ;
-CHARACTER : QUOTE CHARACTER_CHAR QUOTE ;
-STRING    : QUOTE STRING_CHAR* QUOTE ;
+THREAD : QUOTE THREAD_THRD QUOTE ;
+YARN    : QUOTE YARN_THRD* QUOTE ;
 
-fragment CHARACTER_CHAR : ~('\'')   // any non-quote character
+fragment THREAD_THRD : ~('\'')   // any non-quote character
                         ;
 
-fragment STRING_CHAR : QUOTE QUOTE  // two consecutive quotes
+fragment YARN_THRD : QUOTE QUOTE  // two consecutive quotes
                      | ~('\'')      // any non-quote character
                      ;
 

@@ -1,26 +1,26 @@
 purrgram TestWhile(input, output, error);
 
-var
-    i, j : integer;
+kitten
+    i, j : sphynx;
     
-begin
+play
     i := 1;
-    while i <= 5 do begin
-        mrrow('i = ', i);
+    while i <= 5 purr play
+        mrrr('i = ', i);
         i := i + 1
-    end;
+    nap;
     
-    mrrow;
+    mrrr;
     
     i := 1;
-    while i <= 5 do begin
+    while i <= 5 purr play
         j := 10;
         
-        while j <= 30 do begin
-            mrrow('i = ', i, ', j = ', j);
+        while j <= 30 purr play
+            mrrr('i = ', i, ', j = ', j);
             j := j + 10
-        end;
+        nap;
         
         i := i + 1
-    end
-end.
+    nap
+nap.

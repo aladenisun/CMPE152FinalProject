@@ -23,127 +23,88 @@ public:
 
     /**
      * Emit code for an assignment statement.
-     * @param ctx the AssignmentStatementContext.
+     * @param ctx the HungryMewContext.
      */
-    void emitAssignment(PurrscalParser::AssignmentStatementContext *ctx);
+    void emitAssignment(PurrscalParser::HungryMewContext *ctx);
 
     /**
      * Emit code for an IF statement.
-     * @param ctx the IfStatementContext.
+     * @param ctx the SniffMewContext.
      */
-    void emitIf(PurrscalParser::IfStatementContext *ctx);
+    void emitIf(PurrscalParser::SniffMewContext *ctx);
 
-    /**
-     * Emit code for a CASE statement.
-     * @param ctx the CaseStatementContext.
-     */
-    void emitCase(PurrscalParser::CaseStatementContext *ctx);
-
-    /**
+       /**
      * Emit code for a REPEAT statement.
-     * @param ctx the RepeatStatementContext.
+     * @param ctx the HowlMewContext.
      */
-    void emitRepeat(PurrscalParser::RepeatStatementContext *ctx);
+    void emitRepeat(PurrscalParser::HowlMewContext *ctx);
 
     /**
      * Emit code for a WHILE statement.
-     * @param ctx the WhileStatementContext.
+     * @param ctx the PurrMewContext.
      */
-    void emitWhile(PurrscalParser::WhileStatementContext *ctx);
+    void emitWhile(PurrscalParser::PurrMewContext *ctx);
 
-    /**
-     * Emit code for a FOR statement.
-     * @param ctx the ForStatementContext.
-     */
-    void emitFor(PurrscalParser::ForStatementContext *ctx);
 
     /**
      * Emit code for a procedure call statement.
-     * @param ctx the ProcedureCallStatementContext.
+     * @param ctx the YowlCallMewContext.
      */
-    void emitProcedureCall(PurrscalParser::ProcedureCallStatementContext *ctx);
+    void emitProcedureCall(PurrscalParser::YowlCallMewContext *ctx);
 
     /**
      * Emit code for a function call statement.
      * @param ctx the FunctionCallContext.
      */
-    void emitFunctionCall(PurrscalParser::FunctionCallContext *ctx);
+    void emitFunctionCall(PurrscalParser::BlepCallContext *ctx);
 
     /**
      * Emit code for a MEOW statement.
-     * @param ctx the MeowStatementContext.
+     * @param ctx the MeowMewContext.
      */
-    void emitMeow(PurrscalParser::MeowStatementContext *ctx);
+    void emitMeow(PurrscalParser::MeowMewContext *ctx);
 
     /**
      * Emit code for a MRROW statement.
-     * @param ctx the MrrowStatementContext.
+     * @param ctx the MrrrMewContext.
      */
-    void emitMrrow(PurrscalParser::MrrowStatementContext *ctx);
+    void emitMrrow(PurrscalParser::MrrrMewContext *ctx);
 
     /**
      * Emit code for a READ statement.
-     * @param ctx the ReadStatementContext.
+     * @param ctx the StalkMewContext.
      */
-    void emitRead(PurrscalParser::ReadStatementContext *ctx);
+    void emitRead(PurrscalParser::StalkMewContext *ctx);
 
     /**
      * Emit code for a READLN statement.
-     * @param ctx the ReadlnStatementContext.
+     * @param ctx the PounceMewContext.
      */
-    void emitReadln(PurrscalParser::ReadlnStatementContext *ctx);
+    void emitReadln(PurrscalParser::PounceMewContext *ctx);
 
 private:
     /**
-     * Process the CASE map from the CASE branches.
-     * @param branchListCtx the CaseBranchListContext.
-     * @param branchLabels the branch labels.
-     * @return the array list of table entries.
-     */
-    map<int, Label *> *createCaseMap(
-                            PurrscalParser::CaseBranchListContext *branchListCtx,
-                            vector<Label *>& branchLabels);
-
-    /**
-     * Emit code for the LOOKUPSWITCH instruction.
-     * @param entries the table entries.
-     * @param branchLabels the branch labels.
-     */
-    void emitLookupSwitch(map<int, Label *> *labelMap,
-                          vector<Label *>& branchLabels);
-
-    /**
-     * Emit code for the branch statements.
-     * @param branchListCtx the CaseBranchListContext.
-     * @param branchLabels the branch labels
-     * @throws PurrscalCompilerException if an error occurred.
-     */
-    void emitBranchStatements(
-                            PurrscalParser::CaseBranchListContext *branchListCtx,
-                            vector<Label *>& branchLabels);
-
-    /**
      * Emit a call to a procedure or a function.
      * @param routineId the routine name's symbol table entry.
-     * @param argListCtx the ArgumentListContext.
+     * @param argListCtx the ChirpsContext.
      */
     void emitCall(SymtabEntry *routineId,
-                  PurrscalParser::ArgumentListContext *argListCtx);
+                  PurrscalParser::ChirpsContext *argListCtx);
 
     /**
      * Emit code for a call to MEOW or MRROW.
-     * @param argsCtx the MeowArgumentsContext.
+     * @param argsCtx the MeowsContext.
      * @param needLF true if need a line feed.
      */
-    void emitMeow(PurrscalParser::MeowArgumentsContext *argsCtx, bool needLF);
+    void emitMeow(PurrscalParser::MeowsContext *argsCtx, bool needLF);
 
     /**
      * Create the printf format string.
-     * @param argsCtx the MeowArgumentsContext.
+     * @param argsCtx the MeowsContext.
      * @param format the format string to create.
      * @return the count of expression arguments.
      */
-    int createMeowFormat(PurrscalParser::MeowArgumentsContext *argsCtx,
+    int createMeowFormat(PurrscalParser::MeowsContext *argsCtx,
                           string& format, bool needLF);
 
     /**
@@ -151,15 +112,15 @@ private:
      * @param argsCtx
      * @param exprCount
      */
-    void emitArgumentsArray(PurrscalParser::MeowArgumentsContext *argsCtx,
+    void emitArgumentsArray(PurrscalParser::MeowsContext *argsCtx,
                             int exprCount);
 
     /**
      * Generate code for a call to READ or READLN.
-     * @param argsCtx the ReadArgumentsContext.
+     * @param argsCtx the MrowusContext.
      * @param needSkip true if need to skip the rest of the input line.
      */
-    void emitRead(PurrscalParser::ReadArgumentsContext *argsCtx, bool needSkip);
+    void emitRead(PurrscalParser::MrowusContext *argsCtx, bool needSkip);
 };
 
 }} // namespace backend::compiler

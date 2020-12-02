@@ -51,48 +51,32 @@ public:
           statementCode(nullptr), expressionCode(nullptr) {}
 
     /**
-     * Constructor for child compilers of records.
-     * @param parent the parent compiler.
-     * @param recordId the symbol table entry of the name of the record to compile.
-     */
-    Compiler(Compiler *parent, SymtabEntry *recordId)
-    {
-        string recordTypePath = recordId->getType()->getRecordTypePath();
-        code = new CodeGenerator(recordTypePath, "j", this);
-        createNewGenerators(code);
-
-        purrgramCode->emitRecord(recordId, recordTypePath);
-    }
-
-    /**
      * Get the name of the object (Jasmin) file.
      * @return the file name.
      */
     string getObjectFileName() { return code->getObjectFileName(); }
 
     Object visitPurrgram(PurrscalParser::PurrgramContext *ctx) override;
-    Object visitRoutineDefinition(PurrscalParser::RoutineDefinitionContext *ctx) override;
-    Object visitStatement(PurrscalParser::StatementContext *ctx) override;
-    Object visitAssignmentStatement(PurrscalParser::AssignmentStatementContext *ctx) override;
-    Object visitIfStatement(PurrscalParser::IfStatementContext *ctx) override;
-    Object visitCaseStatement(PurrscalParser::CaseStatementContext *ctx) override;
-    Object visitRepeatStatement(PurrscalParser::RepeatStatementContext *ctx) override;
-    Object visitWhileStatement(PurrscalParser::WhileStatementContext *ctx) override;
-    Object visitForStatement(PurrscalParser::ForStatementContext *ctx) override;
-    Object visitProcedureCallStatement(PurrscalParser::ProcedureCallStatementContext *ctx) override;
-    Object visitExpression(PurrscalParser::ExpressionContext *ctx) override;
-    Object visitVariableFactor(PurrscalParser::VariableFactorContext *ctx) override;
-    Object visitVariable(PurrscalParser::VariableContext *ctx) override;
-    Object visitNumberFactor(PurrscalParser::NumberFactorContext *ctx) override;
-    Object visitCharacterFactor(PurrscalParser::CharacterFactorContext *ctx) override;
-    Object visitStringFactor(PurrscalParser::StringFactorContext *ctx) override;
-    Object visitFunctionCallFactor(PurrscalParser::FunctionCallFactorContext *context) override;
-    Object visitNotFactor(PurrscalParser::NotFactorContext *ctx) override;
-    Object visitParenthesizedFactor(PurrscalParser::ParenthesizedFactorContext *ctx) override;
-    Object visitMeowStatement(PurrscalParser::MeowStatementContext *ctx) override;
-    Object visitMrrowStatement(PurrscalParser::MrrowStatementContext *ctx) override;
-    Object visitReadStatement(PurrscalParser::ReadStatementContext *ctx) override;
-    Object visitReadlnStatement(PurrscalParser::ReadlnStatementContext *ctx) override;
+    Object visitCallBody(PurrscalParser::CallBodyContext *ctx) override;
+    Object visitMew(PurrscalParser::MewContext *ctx) override;
+    Object visitHungryMew(PurrscalParser::HungryMewContext *ctx) override;
+    Object visitSniffMew(PurrscalParser::SniffMewContext *ctx) override;
+    Object visitHowlMew(PurrscalParser::HowlMewContext *ctx) override;
+    Object visitPurrMew(PurrscalParser::PurrMewContext *ctx) override;
+    Object visitYowlCallMew(PurrscalParser::YowlCallMewContext *ctx) override;
+    Object visitDemand(PurrscalParser::DemandContext *ctx) override;
+    Object visitKittenExpectation(PurrscalParser::KittenExpectationContext *ctx) override;
+    Object visitKitten(PurrscalParser::KittenContext *ctx) override;
+    Object visitFelineExpectation(PurrscalParser::FelineExpectationContext *ctx) override;
+    Object visitThreadBallExpectation(PurrscalParser::ThreadBallExpectationContext *ctx) override;
+    Object visitYarnBallExpectation(PurrscalParser::YarnBallExpectationContext *ctx) override;
+    Object visitBlepCallExpectation(PurrscalParser::BlepCallExpectationContext *context) override;
+    Object visitRollExpectation(PurrscalParser::RollExpectationContext *ctx) override;
+    Object visitParenthesizedExpectation(PurrscalParser::ParenthesizedExpectationContext *ctx) override;
+    Object visitMeowMew(PurrscalParser::MeowMewContext *ctx) override;
+    Object visitMrrrMew(PurrscalParser::MrrrMewContext *ctx) override;
+    Object visitStalkMew(PurrscalParser::StalkMewContext *ctx) override;
+    Object visitPounceMew(PurrscalParser::PounceMewContext *ctx) override;
 
 private:
     /**

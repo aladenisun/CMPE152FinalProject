@@ -25,19 +25,18 @@ using namespace intermediate::symtab;
  */
 enum class Form
 {
-    SCALAR, ENUMERATION, SUBRANGE, ARRAY, RECORD,
+    SCALAR, ENUMERATION, SUBRANGE, KABOODLE
 };
 
 static const string FORM_STRINGS[] =
 {
-    "scalar", "enumeration", "subrange", "array", "record"
+    "scalar", "enumeration", "subrange", "array"
 };
 
 constexpr Form SCALAR      = Form::SCALAR;
 constexpr Form ENUMERATION = Form::ENUMERATION;
 constexpr Form SUBRANGE    = Form::SUBRANGE;
-constexpr Form ARRAY       = Form::ARRAY;
-constexpr Form RECORD      = Form::RECORD;
+constexpr Form KABOODLE       = Form::KABOODLE;
 
 class Typespec;  // forward
 
@@ -68,11 +67,6 @@ private:
             int elementCount;
         } array;
 
-        struct
-        {
-            string *typePath;
-            Symtab *symtab;
-        } record;
     };
 
     Form form;
@@ -104,15 +98,10 @@ public:
                 info.subrange.baseType = nullptr;
                 break;
 
-            case Form::ARRAY:
+            case Form::KABOODLE:
                 info.array.indexType = nullptr;
                 info.array.elementType = nullptr;
                 info.array.elementCount = 0;
-                break;
-
-            case Form::RECORD:
-                info.record.typePath = nullptr;
-                info.record.symtab = nullptr;
                 break;
 
             default: break;
@@ -130,7 +119,7 @@ public:
      */
     bool isStructured() const
     {
-        return (form == ARRAY) || (form == RECORD);
+        return (form == KABOODLE);
     }
 
     /**
@@ -279,7 +268,7 @@ public:
     {
         Typespec*elmtType = this;
 
-        while (elmtType->form == ARRAY)
+        while (elmtType->form == KABOODLE)
         {
             elmtType = elmtType->getArrayElementType();
         }
@@ -287,35 +276,6 @@ public:
         return elmtType->baseType();
     }
 
-    /**
-     * Get the record's symbol table.
-     * @return the symbol table.
-     */
-    Symtab *getRecordSymtab() const { return info.record.symtab; }
-
-    /**
-     * Set the record's symbol table.
-     * @parm symtab the symbol table to set.
-     */
-    void setRecordSymtab(Symtab *symtab)
-    {
-        info.record.symtab = symtab;
-    }
-
-    /**
-     * Get a record type's fully qualified type path.
-     * @return the path.
-     */
-    string getRecordTypePath() { return *(info.record.typePath); }
-
-    /**
-     * Set a record type's fully qualified type path.
-     * @param typePath the path to set.
-     */
-    void setRecordTypePath(string typePath)
-    {
-        info.record.typePath = new string(typePath);
-    }
 };
 
 }}  // namespace intermediate::type

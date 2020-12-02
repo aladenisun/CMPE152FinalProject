@@ -9,11 +9,11 @@
 
 namespace backend { namespace compiler {
 
-void ExpressionGenerator::emitExpression(PurrscalParser::ExpressionContext *ctx)
+void ExpressionGenerator::emitExpression(PurrscalParser::DemandContext *ctx)
 {
-    PurrscalParser::SimpleExpressionContext *simpleCtx1 =
-                                            ctx->simpleExpression()[0];
-    PurrscalParser::RelOpContext *relOpCtx = ctx->relOp();
+    PurrscalParser::ChonkDemandContext *simpleCtx1 =
+                                            ctx->chonkDemand()[0];
+    PurrscalParser::RelationalWhiskerContext *relOpCtx = ctx->relationalWhisker();
     Typespec *type1 = simpleCtx1->type;
     emitSimpleExpression(simpleCtx1);
 
@@ -21,8 +21,8 @@ void ExpressionGenerator::emitExpression(PurrscalParser::ExpressionContext *ctx)
     if (relOpCtx != nullptr)
     {
         string op = relOpCtx->getText();
-        PurrscalParser::SimpleExpressionContext *simpleCtx2 =
-                                            ctx->simpleExpression()[1];
+        PurrscalParser::ChonkDemandContext *simpleCtx2 =
+                                            ctx->chonkDemand()[1];
         Typespec *type2 = simpleCtx2->type;
 
         bool integerMode   = false;
@@ -99,14 +99,14 @@ void ExpressionGenerator::emitExpression(PurrscalParser::ExpressionContext *ctx)
     }
 }
 
-void ExpressionGenerator::emitSimpleExpression(PurrscalParser::SimpleExpressionContext *ctx)
+void ExpressionGenerator::emitSimpleExpression(PurrscalParser::ChonkDemandContext *ctx)
 {
-    int count = ctx->term().size();
-    bool negate =    (ctx->sign() != nullptr)
-                  && (ctx->sign()->getText() == "-");
+    int count = ctx->trill().size();
+    bool negate =    (ctx->fur() != nullptr)
+                  && (ctx->fur()->getText() == "-");
 
     // First term.
-    PurrscalParser::TermContext *termCtx1 = ctx->term()[0];
+    PurrscalParser::TrillContext *termCtx1 = ctx->trill()[0];
     Typespec *type1 = termCtx1->type;
     emitTerm(termCtx1);
 
@@ -115,8 +115,8 @@ void ExpressionGenerator::emitSimpleExpression(PurrscalParser::SimpleExpressionC
     // Loop over the subsequent terms.
     for (int i = 1; i < count; i++)
     {
-        string op = toLowerCase(ctx->addOp()[i-1]->getText());
-        PurrscalParser::TermContext *termCtx2 = ctx->term()[i];
+        string op = toLowerCase(ctx->additiveWhisker()[i-1]->getText());
+        PurrscalParser::TrillContext *termCtx2 = ctx->trill()[i];
         Typespec *type2 = termCtx2->type;
 
         bool integerMode = false;
@@ -187,20 +187,20 @@ void ExpressionGenerator::emitSimpleExpression(PurrscalParser::SimpleExpressionC
     }
 }
 
-void ExpressionGenerator::emitTerm(PurrscalParser::TermContext *ctx)
+void ExpressionGenerator::emitTerm(PurrscalParser::TrillContext *ctx)
 {
-    int count = ctx->factor().size();
+    int count = ctx->expectation().size();
 
     // First factor.
-    PurrscalParser::FactorContext *factorCtx1 = ctx->factor()[0];
+    PurrscalParser::ExpectationContext *factorCtx1 = ctx->expectation()[0];
     Typespec *type1 = factorCtx1->type;
     compiler->visit(factorCtx1);
 
     // Loop over the subsequent factors.
     for (int i = 1; i < count; i++)
     {
-        string op = toLowerCase(ctx->mulOp()[i-1]->getText());
-        PurrscalParser::FactorContext *factorCtx2 = ctx->factor()[i];
+        string op = toLowerCase(ctx->multiplicativeWhisker()[i-1]->getText());
+        PurrscalParser::ExpectationContext *factorCtx2 = ctx->expectation()[i];
         Typespec *type2 = factorCtx2->type;
 
         bool integerMode = false;
@@ -223,8 +223,6 @@ void ExpressionGenerator::emitTerm(PurrscalParser::TermContext *ctx)
 
             if      (op == "*")   emit(IMUL);
             else if (op == "/")   emit(FDIV);
-            else if (op == "div") emit(IDIV);
-            else if (op == "mod") emit(IREM);
         }
         else if (realMode)
         {
@@ -243,38 +241,35 @@ void ExpressionGenerator::emitTerm(PurrscalParser::TermContext *ctx)
     }
 }
 
-void ExpressionGenerator::emitNotFactor(PurrscalParser::NotFactorContext *ctx)
+void ExpressionGenerator::emitNotFactor(PurrscalParser::RollExpectationContext *ctx)
 {
-    compiler->visit(ctx->factor());
+    compiler->visit(ctx->expectation());
     emit(ICONST_1);
     emit(IXOR);
 }
 
-void ExpressionGenerator::emitLoadValue(PurrscalParser::VariableContext *varCtx)
+void ExpressionGenerator::emitLoadValue(PurrscalParser::KittenContext *varCtx)
 {
     // Load the scalar value or structure address.
     Typespec *variableType = emitLoadVariable(varCtx);
 
-    // Load an array element's or record field's value.
+    // Load an array element's value.
     int modifierCount = varCtx->modifier().size();
     if (modifierCount > 0)
     {
         PurrscalParser::ModifierContext *lastModCtx =
                                         varCtx->modifier()[modifierCount - 1];
 
-        if (lastModCtx->indexList() != nullptr)
+        if (lastModCtx->indices() != nullptr)
         {
             emitLoadArrayElementValue(variableType);
         }
-        else
-        {
-            emitLoadRecordFieldValue(lastModCtx->field(), variableType);
-        }
+
     }
 }
 
 Typespec *ExpressionGenerator::emitLoadVariable(
-                                        PurrscalParser::VariableContext *varCtx)
+                                        PurrscalParser::KittenContext *varCtx)
 {
     SymtabEntry *variableId = varCtx->entry;
     Typespec *variableType = variableId->getType();
@@ -290,24 +285,19 @@ Typespec *ExpressionGenerator::emitLoadVariable(
         bool lastModifier = i == modifierCount - 1;
 
         // Subscript
-        if (modCtx->indexList() != nullptr)
+        if (modCtx->indices() != nullptr)
         {
             variableType = emitLoadArrayElementAccess(
-                            modCtx->indexList(), variableType, lastModifier);
+                            modCtx->indices(), variableType, lastModifier);
         }
 
-        // Field
-        else if (!lastModifier)
-        {
-            variableType = emitLoadRecordField(modCtx->field(), variableType);
-        }
     }
 
     return variableType;
 }
 
 Typespec *ExpressionGenerator::emitLoadArrayElementAccess(
-                                PurrscalParser::IndexListContext *indexListCtx,
+                                PurrscalParser::IndicesContext *indexListCtx,
                                 Typespec *elmtType, bool lastModifier)
 {
     int indexCount = indexListCtx->index().size();
@@ -316,7 +306,7 @@ Typespec *ExpressionGenerator::emitLoadArrayElementAccess(
     for (int i = 0; i < indexCount; i++)
     {
         PurrscalParser::IndexContext *indexCtx = indexListCtx->index()[i];
-        emitExpression(indexCtx->expression());
+        emitExpression(indexCtx->demand());
 
         Typespec *indexType = elmtType->getArrayIndexType();
 
@@ -365,33 +355,13 @@ void ExpressionGenerator::emitLoadArrayElementValue(Typespec *elmtType)
     }
 }
 
-void ExpressionGenerator::emitLoadRecordFieldValue(
-                    PurrscalParser::FieldContext *fieldCtx, Typespec *recordType)
-{
-    emitLoadRecordField(fieldCtx, recordType);
-}
-
-Typespec *ExpressionGenerator::emitLoadRecordField(
-                    PurrscalParser::FieldContext *fieldCtx, Typespec *recordType)
-{
-    SymtabEntry *fieldId = fieldCtx->entry;
-    string fieldName = fieldId->getName();
-    Typespec *fieldType = fieldCtx->type;
-
-    string recordTypePath = recordType->getRecordTypePath();
-    string fieldPath = recordTypePath + "/" + fieldName;
-    emit(GETFIELD, fieldPath, typeDescriptor(fieldType));
-
-    return fieldType;
-}
-
-void ExpressionGenerator::emitLoadIntegerConstant(PurrscalParser::NumberContext *intCtx)
+void ExpressionGenerator::emitLoadIntegerConstant(PurrscalParser::FelineContext *intCtx)
 {
     int value = stoi(intCtx->getText());
     emitLoadConstant(value);
 }
 
-void ExpressionGenerator::emitLoadRealConstant(PurrscalParser::NumberContext *realCtx)
+void ExpressionGenerator::emitLoadRealConstant(PurrscalParser::FelineContext *realCtx)
 {
     float value = stof(realCtx->getText());
     emitLoadConstant(value);
