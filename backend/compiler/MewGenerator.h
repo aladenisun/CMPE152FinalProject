@@ -31,7 +31,7 @@ public:
      * Emit code for an IF statement.
      * @param ctx the IfStatementContext.
      */
-    void emitSnif(PurrscalParser::SniffMewContext*ctx);
+    void emitSniff(PurrscalParser::SniffMewContext*ctx);
 
     /**
      * Emit code for a CASE statement.

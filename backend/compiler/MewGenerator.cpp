@@ -16,58 +16,58 @@ using namespace intermediate;
 
 void MewGenerator::emitHungryMew(PurrscalParser::HungryMewContext *ctx){
 
-	 PurrscalParser::KittenContext *varCtx  = ctx->lps()->kitten();
-	    PurrscalParser::DemandContext *exprCtx = ctx->rps()->demand();
-	    SymtabEntry *varId = varCtx->entry;
-	    Typespec *varType  = varCtx->type;
-	    Typespec *exprType = exprCtx->type;
+	PurrscalParser::KittenContext *varCtx  = ctx->lps()->kitten();
+	PurrscalParser::DemandContext *exprCtx = ctx->rps()->demand();
+	SymtabEntry *varId = varCtx->entry;
+	Typespec *varType  = varCtx->type;
+	Typespec *exprType = exprCtx->type;
 
-	    // The last modifier, if any, is the variable's last subscript or field.
-	    int modifierCount = varCtx->modifier().size();
-	    PurrscalParser::ModifierContext *lastModCtx = modifierCount == 0
-	                            ? nullptr : varCtx->modifier()[modifierCount - 1];
+	// The last modifier, if any, is the variable's last subscript or field.
+	int modifierCount = varCtx->modifier().size();
+	PurrscalParser::ModifierContext *lastModCtx = modifierCount == 0
+							? nullptr : varCtx->modifier()[modifierCount - 1];
 
-	    // The target variable has subscripts and/or fields.
-	    if (modifierCount > 0)
-	    {
-	        lastModCtx = varCtx->modifier()[modifierCount - 1];
-	        compiler->visit(varCtx);
-	    }
+	// The target variable has subscripts and/or fields.
+	if (modifierCount > 0)
+	{
+		lastModCtx = varCtx->modifier()[modifierCount - 1];
+		compiler->visit(varCtx);
+	}
 
-	    // Emit code to evaluate the expression.
-	    compiler->visit(exprCtx);
+	// Emit code to evaluate the expression.
+	compiler->visit(exprCtx);
 
-	    // float variable := integer constant
-	    if (   (varType == Predefined::realType)
-	        && (exprType->baseType() == Predefined::integerType)) emit(I2F);
+	// float variable := integer constant
+	if (   (varType == Predefined::realType)
+		&& (exprType->baseType() == Predefined::integerType)) emit(I2F);
 
-	    // Emit code to store the expression value into the target variable.
-	    // The target variable has no subscripts or fields.
-	    if (lastModCtx == nullptr) emitStoreValue(varId, varId->getType());
+	// Emit code to store the expression value into the target variable.
+	// The target variable has no subscripts or fields.
+	if (lastModCtx == nullptr) emitStoreValue(varId, varId->getType());
 
-	    // The target variable is a field.
-	    else if (lastModCtx->chungus()!= nullptr)
-	    {
-	        emitStoreValue(lastModCtx->chungus()->entry, lastModCtx->chungus()->type);
-	    }
+	// The target variable is a field.
+	else if (lastModCtx->chungus()!= nullptr)
+	{
+		emitStoreValue(lastModCtx->chungus()->entry, lastModCtx->chungus()->type);
+	}
 
-	    // The target variable is an array element.
-	    else
-	    {
-	        emitStoreValue(nullptr, varType);
-	    }
+	// The target variable is an array element.
+	else
+	{
+		emitStoreValue(nullptr, varType);
+	}
 }
 
-void MewGenerator::emitSnif(PurrscalParser::SniffMewContext*ctx){
+// emit code for an IF statement, param ctx is the IfStatementContext
+// Yosef's code below, beware ye who enter
+void MewGenerator::emitSniff(PurrscalParser::SniffMewContext*ctx) {
+
 
 }
-
-
 
 void MewGenerator::emitHowl(PurrscalParser::HowlMewContext *ctx){
 
 }
-
 
 void MewGenerator::emitPurr(PurrscalParser::PurrMewContext *ctx){
 
@@ -88,7 +88,6 @@ void MewGenerator::emitMeow(PurrscalParser::MeowMewContext *ctx){
 void MewGenerator::emitMrrr(PurrscalParser::MrrrMewContext*ctx){
 
 }
-
 
 void MewGenerator::emitRead(PurrscalParser::StalkMewContext *ctx){
 
@@ -114,7 +113,6 @@ int MewGenerator::createWriteFormat(PurrscalParser::MeowsContext *argsCtx, strin
 	return 0;
 }
 
-
 void MewGenerator::emitArgumentsArray(PurrscalParser::MeowsContext *argsCtx, int exprCount){
 
 }
@@ -122,6 +120,5 @@ void MewGenerator::emitArgumentsArray(PurrscalParser::MeowsContext *argsCtx, int
 void MewGenerator::emitRead(PurrscalParser::MrowusContext *argsCtx, bool needSkip){
 
 }
-
 
 }} // namespace backend::compiler

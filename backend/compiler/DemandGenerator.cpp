@@ -9,9 +9,8 @@
 
 namespace backend { namespace compiler {
 
-
+// demand = expression
 void DemandGenerator::emitDemand(PurrscalParser::DemandContext *ctx){
-
 
 }
 
