@@ -70,10 +70,10 @@ public:
 
         typeTable = new map<string, Typespec *>();
         (*typeTable)["sphynx"] = Predefined::integerType;
-        (*typeTable)["real"]    = Predefined::realType;
-        (*typeTable)["boolean"] = Predefined::booleanType;
-        (*typeTable)["char"]    = Predefined::charType;
-        (*typeTable)["string"]  = Predefined::stringType;
+        (*typeTable)["feline"]    = Predefined::realType;
+        (*typeTable)["schroedinger"] = Predefined::booleanType;
+        (*typeTable)["thread"]    = Predefined::charType;
+        (*typeTable)["yarn"]  = Predefined::stringType;
     }
 
     /**
@@ -95,15 +95,15 @@ public:
     static Object defaultValue(Typespec *type);
 
     Object visitPurrgram(PurrscalParser::PurrgramContext *ctx) override;
-    Object visitPurrgramHeader(PurrscalParser::PurrgramHeaderContext *ctx) override;
+    Object visitPurrgramSnoot(PurrscalParser::PurrgramSnootContext *ctx) override;
     Object visitDomesticBody(PurrscalParser::DomesticBodyContext *ctx) override;
     Object visitDomestic(PurrscalParser::DomesticContext *ctx) override;
     Object visitBreedBody(PurrscalParser::BreedBodyContext *ctx) override;
     Object visitChonkspec(PurrscalParser::ChonkspecContext *ctx) override;
-    Object visitKittyBreedTypespec(PurrscalParser::KittyBreedTypespecContext *ctx) override;
+    Object visitKittyBreedspec(PurrscalParser::KittyBreedspecContext *ctx) override;
     Object visitKittyBreed(PurrscalParser::KittyBreedContext *ctx) override;
     Object visitFluffballspec(PurrscalParser::FluffballspecContext *ctx) override;
-    Object visitKittenKaboodlespec(PurrscalParser::KittenKaboodlespecContext *ctx) override;
+    Object visitKittenKaboodleBasketspec(PurrscalParser::KittenKaboodleBasketspecContext *ctx) override;
     Object visitKaboodlespec(PurrscalParser::KaboodlespecContext *ctx) override;
     Object visitKittenBody(PurrscalParser::KittenBodyContext *ctx) override;
     Object visitCallBody(PurrscalParser::CallBodyContext *ctx) override;

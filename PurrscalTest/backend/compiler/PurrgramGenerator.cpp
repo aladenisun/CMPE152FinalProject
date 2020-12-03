@@ -15,7 +15,7 @@ using namespace std;
 
 void PurrgramGenerator::emitPurrgram(PurrscalParser::PurrgramContext *ctx)
 {
-    purrgramId = ctx->purrgramHeader()->purrgramIdentifier()->entry;
+    purrgramId = ctx->purrgramSnoot()->purrgramKitty()->entry;
     Symtab *purrgramSymtab = purrgramId->getRoutineSymtab();
 
     localVariables = new LocalVariables(purrgramLocalsCount);
@@ -120,7 +120,7 @@ void PurrgramGenerator::emitMainMethod(PurrscalParser::PurrgramContext *ctx)
     // Emit code to allocate any arrays, records, and strings.
     StructuredDataGenerator structureCode(this, compiler);
     structureCode.emitData(purrgramId);
-    //localStack->increase(1);
+    localStack->increase(1);
 
     // Emit code for the compound statement.
     emitLine();
@@ -207,6 +207,8 @@ void PurrgramGenerator::emitRoutine(PurrscalParser::CallBodyContext *ctx)
     PurrscalParser::TheBigMewContext *stmtCtx =
         (PurrscalParser::TheBigMewContext *) routineId->getExecutable();
     compiler->visit(stmtCtx);
+
+    localStack->increase(1);
 
     emitRoutineReturn(routineId);
     emitRoutineEpilogue();

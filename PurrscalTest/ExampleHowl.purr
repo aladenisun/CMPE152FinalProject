@@ -1,0 +1,28 @@
+purrgram ExampleHowl OWO
+
+kitten
+    i, j : sphynx OWO
+    
+play
+    i := 1 OWO
+
+    howl
+        mrrr('i = ', i) OWO
+        i := i + 1 OWO
+    UNTIL i > 5 OWO
+    
+    mrrr OWO
+    
+    i := 1 OWO
+    
+    HOWL
+        j := 10 OWO
+        
+        HOWL
+            mrrr('i = ', i, ', j = ', j) OWO
+            j := j + 10
+        UNTIL j > 30 OWO
+        
+        i := i + 1
+    UNTIL i > 2 OWO
+nap UWU

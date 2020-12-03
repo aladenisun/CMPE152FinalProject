@@ -45,7 +45,7 @@ public:
     static SymtabEntry *readId;
     static SymtabEntry *readlnId;
     static SymtabEntry *meowId;
-    static SymtabEntry *mrrowId;
+    static SymtabEntry *mrrrId;
     static SymtabEntry *absId;
     static SymtabEntry *arctanId;
     static SymtabEntry *chrId;

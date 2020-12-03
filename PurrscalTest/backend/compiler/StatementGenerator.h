@@ -68,7 +68,7 @@ public:
      * Emit code for a MRROW statement.
      * @param ctx the MrrrMewContext.
      */
-    void emitMrrow(PurrscalParser::MrrrMewContext *ctx);
+    void emitMrrr(PurrscalParser::MrrrMewContext *ctx);
 
     /**
      * Emit code for a READ statement.

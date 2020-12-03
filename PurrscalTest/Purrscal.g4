@@ -8,19 +8,19 @@ grammar Purrscal;
     using namespace intermediate::type;
 }
 
-purrgram           : purrgramHeader cat '.' ;
-purrgramHeader     : PURRGRAM purrgramIdentifier purrgramPurrameters? ';' ; 
+purrgram           : purrgramSnoot cat UWU ;
+purrgramSnoot     : PURRGRAM purrgramKitty purrgramPurrameters? OWO ; 
 purrgramPurrameters : '(' KITTY ( ',' KITTY )* ')' ;
 
-purrgramIdentifier   locals [ SymtabEntry *entry = nullptr ]
+purrgramKitty   locals [ SymtabEntry *entry = nullptr ]
     : KITTY ;
 
 cat         : catQualities theBigMew ;
-catQualities  : ( domesticQuality ';' )? ( breedQuality ';' )? 
-                ( kittenQuality ';' )? ( callQuality ';')? ;
+catQualities  : ( domesticQuality OWO )? ( breedQuality OWO )? 
+                ( kittenQuality OWO )? ( callQuality OWO)? ;
 
 domesticQuality           : DOMESTIC domesticBodies ;
-domesticBodies : domesticBody ( ';' domesticBody )* ;
+domesticBodies : domesticBody ( OWO domesticBody )* ;
 domesticBody      : domesticKitty '=' domestic ;
 
 domesticKitty  locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
@@ -35,7 +35,7 @@ domestic            locals [ Typespec *type = nullptr, Object value = nullptr ]
 fur : '-' | '+' ;
 
 breedQuality           : BREED breedBodies ;
-breedBodies : breedBody ( ';' breedBody )* ;
+breedBodies : breedBody ( OWO breedBody )* ;
 breedBody      : kittyBreed '=' breed ;
 
 kittyBreed      locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
@@ -47,29 +47,29 @@ breed   locals [ Typespec *type = nullptr ]
     ;
 
 chonk          locals [ Typespec *type = nullptr ] 
-    : kittyBreed    # kittyBreedTypespec 
+    : kittyBreed    # kittyBreedspec 
     | fluffball   # fluffballspec
-    | kittenKaboodle      # kittenKaboodlespec
+    | kittenKaboodleBasket      # kittenKaboodleBasketspec
     ;
            
 fluffball     : '(' fluffballDomestic ( ',' fluffballDomestic )* ')' ;
 fluffballDomestic : domesticKitty ;
-kittenKaboodle        : domestic '..' domestic ;
+kittenKaboodleBasket        : domestic '..' domestic ;
 
 kaboodle
-    : KABOODLE '[' kaboodleList ']' OF breed ;
-kaboodleList : chonk ( ',' chonk )* ;
+    : KABOODLE '[' kittenKaboodle ']' OF breed ;
+kittenKaboodle : chonk ( ',' chonk )* ;
 
 kittenQuality            : KITTEN kittenBodies ;
-kittenBodies : kittenBody ( ';' kittenBody )* ;
+kittenBodies : kittenBody ( OWO kittenBody )* ;
 kittenBody     : kittenKitties ':' breed ;
 kittenKitties   : kittenKitty ( ',' kittenKitty )* ;
 
 kittenKitty  locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ] 
     : KITTY ;
 
-callQuality      : callBody ( ';' callBody)* ;
-callBody : ( yowlSnoot | blepSnoot ) ';' cat ;
+callQuality      : callBody ( OWO callBody)* ;
+callBody : ( yowlSnoot | blepSnoot ) OWO cat ;
 yowlSnoot     : YOWL callKitty purrameters? ;
 blepSnoot      : BLEP  callKitty purrameters? ':' kittyBreed ;
 
@@ -77,7 +77,7 @@ callKitty   locals [ Typespec *type = nullptr, SymtabEntry *entry = nullptr ]
     : KITTY ;
 
 purrameters                : '(' purrameterPurrs ')' ;
-purrameterPurrs : purrameterPurr ( ';' purrameterPurr )* ;
+purrameterPurrs : purrameterPurr ( OWO purrameterPurr )* ;
 purrameterPurr     : KITTEN? purrameterKitties ':' kittyBreed ;
 purrameterKitties   : purrameterKitty ( ',' purrameterKitty )* ;
 
@@ -100,7 +100,7 @@ mew : theBigMew
 theBigMew : PLAY mews NAP ;
 blankStare : ;
      
-mews       : mew ( ';' mew )* ;
+mews       : mew ( OWO mew )* ;
 hungryMew : lps ':=' rps ;
 
 lps                 locals [ Typespec *type = nullptr ] 
@@ -206,6 +206,8 @@ fragment Y : ('y' | 'Y') ;
 fragment Z : ('z' | 'Z') ;
 
 PURRGRAM  : P U R R G R A M ;
+UWU : U W U ;
+OWO : O W O ;
 DOMESTIC     : D O M E S T I C ;
 BREED      : B R E E D ;
 KABOODLE     : K A B O O D L E ;

@@ -1,0 +1,34 @@
+purrgram ExampleKaboodle OWO
+
+breed
+    kaboodleType = kaboodle [0..9] of sphynx OWO
+
+kitten
+	myKaboodle : kaboodleType OWO
+    i, j : sphynx OWO
+
+play
+	i := 0 OWO
+	while i < 10 purr play
+    	myKaboodle[i] := i OWO
+    	i := i + 1 OWO
+    nap OWO
+    
+    i := 0 OWO
+    j := 0 OWO
+    
+    while i < 10 purr play
+    
+    	while j < myKaboodle[i] purr play
+    		meow('=^.^= ') OWO
+			j := j + 1 OWO
+    	nap OWO
+    	
+    	sniff j <> 0 paw play
+    	    mrrr OWO
+    	nap OWO
+		j := 0 OWO
+		i := i + 1 OWO
+    nap OWO
+    
+nap UWU

@@ -42,7 +42,7 @@ SymtabEntry *Predefined::trueId;
 SymtabEntry *Predefined::readId;
 SymtabEntry *Predefined::readlnId;
 SymtabEntry *Predefined::meowId;
-SymtabEntry *Predefined::mrrowId;
+SymtabEntry *Predefined::mrrrId;
 SymtabEntry *Predefined::absId;
 SymtabEntry *Predefined::arctanId;
 SymtabEntry *Predefined::chrId;
@@ -77,25 +77,25 @@ void Predefined::initializeTypes(SymtabStack *symtabStack)
     integerId->setType(integerType);
 
     // Type real.
-    realId = symtabStack->enterLocal("real", BREED);
+    realId = symtabStack->enterLocal("feline", BREED);
     realType = new Typespec(SCALAR);
     realType->setIdentifier(realId);
     realId->setType(realType);
 
     // Type boolean.
-    booleanId = symtabStack->enterLocal("boolean", BREED);
+    booleanId = symtabStack->enterLocal("schroedinger", BREED);
     booleanType = new Typespec(ENUMERATION);
     booleanType->setIdentifier(booleanId);
     booleanId->setType(booleanType);
 
     // Type char.
-    charId = symtabStack->enterLocal("char", BREED);
+    charId = symtabStack->enterLocal("thread", BREED);
     charType = new Typespec(SCALAR);
     charType->setIdentifier(charId);
     charId->setType(charType);
 
     // Type string.
-    stringId = symtabStack->enterLocal("string", BREED);
+    stringId = symtabStack->enterLocal("yarn", BREED);
     stringType = new Typespec(SCALAR);
     stringType->setIdentifier(stringId);
     stringId->setType(stringType);
@@ -107,12 +107,12 @@ void Predefined::initializeTypes(SymtabStack *symtabStack)
 void Predefined::initializeConstants(SymtabStack *symtabStack)
 {
     // Boolean enumeration constant false.
-    falseId = symtabStack->enterLocal("false", ENUMERATION_CONSTANT);
+    falseId = symtabStack->enterLocal("dead", ENUMERATION_CONSTANT);
     falseId->setType(booleanType);
     falseId->setValue(0);
 
     // Boolean enumeration constant true.
-    trueId = symtabStack->enterLocal("true", ENUMERATION_CONSTANT);
+    trueId = symtabStack->enterLocal("alive", ENUMERATION_CONSTANT);
     trueId->setType(booleanType);
     trueId->setValue(1);
 
@@ -128,7 +128,7 @@ void Predefined::initializeStandardRoutines(SymtabStack *symtabStack)
     readId    = enterStandard(symtabStack, YOWL, "stalk",    STALK);
     readlnId  = enterStandard(symtabStack, YOWL, "pounce",  POUNCE);
     meowId   = enterStandard(symtabStack, YOWL, "meow",   MEOW);
-    mrrowId = enterStandard(symtabStack, YOWL, "mrrow", MRROW);
+    mrrrId = enterStandard(symtabStack, YOWL, "mrrr", MRRR);
 
     absId    = enterStandard(symtabStack, BLEP,  "abs",     ABS);
     arctanId = enterStandard(symtabStack, BLEP,  "arctan",  ARCTAN);

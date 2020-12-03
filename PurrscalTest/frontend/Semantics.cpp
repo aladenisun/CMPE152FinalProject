@@ -26,7 +26,7 @@ using namespace intermediate::util;
 
 Object Semantics::visitPurrgram(PurrscalParser::PurrgramContext *ctx)
 {
-    visit(ctx->purrgramHeader());
+    visit(ctx->purrgramSnoot());
     visit(ctx->cat()->catQualities());
     visit(ctx->cat()->theBigMew());
 
@@ -37,9 +37,9 @@ Object Semantics::visitPurrgram(PurrscalParser::PurrgramContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitPurrgramHeader(PurrscalParser::PurrgramHeaderContext *ctx)
+Object Semantics::visitPurrgramSnoot(PurrscalParser::PurrgramSnootContext *ctx)
 {
-    PurrscalParser::PurrgramIdentifierContext *idCtx = ctx->purrgramIdentifier();
+    PurrscalParser::PurrgramKittyContext *idCtx = ctx->purrgramKitty();
     string purrgramName = idCtx->KITTY()->getText();  // don't shift case
 
     purrgramId = symtabStack->enterLocal(purrgramName, PURRGRAM);
@@ -193,8 +193,8 @@ Object Semantics::visitChonkspec(PurrscalParser::ChonkspecContext *ctx)
     return nullptr;
 }
 
-Object Semantics::visitKittyBreedTypespec(
-                            PurrscalParser::KittyBreedTypespecContext *ctx)
+Object Semantics::visitKittyBreedspec(
+                            PurrscalParser::KittyBreedspecContext *ctx)
 {
     visit(ctx->kittyBreed());
     ctx->type = ctx->kittyBreed()->type;
@@ -273,11 +273,11 @@ Object Semantics::visitFluffballspec(
     return nullptr;
 }
 
-Object Semantics::visitKittenKaboodlespec(
-                                    PurrscalParser::KittenKaboodlespecContext *ctx)
+Object Semantics::visitKittenKaboodleBasketspec(
+                                    PurrscalParser::KittenKaboodleBasketspecContext *ctx)
 {
     Typespec *type = new Typespec(SUBRANGE);
-    PurrscalParser::KittenKaboodleContext *subCtx = ctx->kittenKaboodle();
+    PurrscalParser::KittenKaboodleBasketContext *subCtx = ctx->kittenKaboodleBasket();
     PurrscalParser::DomesticContext *minCtx = subCtx->domestic()[0];
     PurrscalParser::DomesticContext *maxCtx = subCtx->domestic()[1];
 
@@ -335,8 +335,8 @@ Object Semantics::visitKaboodlespec(PurrscalParser::KaboodlespecContext *ctx)
 {
     Typespec *arrayType = new Typespec(KABOODLE);
     PurrscalParser::KaboodleContext *arrayCtx = ctx->kaboodle();
-    PurrscalParser::KaboodleListContext *listCtx =
-                                                arrayCtx->kaboodleList();
+    PurrscalParser::KittenKaboodleContext *listCtx =
+                                                arrayCtx->kittenKaboodle();
 
     ctx->type = arrayType;
 

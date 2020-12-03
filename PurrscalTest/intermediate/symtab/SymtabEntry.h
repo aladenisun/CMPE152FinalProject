@@ -67,7 +67,7 @@ constexpr Kind UNDEFINED            = Kind::UNDEFINED;
 enum class Routine
 {
     DECLARED, FORWARD,
-    STALK, POUNCE, MEOW, MRROW,
+    STALK, POUNCE, MEOW, MRRR,
     ABS, ARCTAN, CHR, COS, EXP, LN, ODD, ORD,
     EOF_FUNCTION, EOLN_FUNCTION,
     PRED, ROUND, SIN, SQR, SQRT, SUCC, TRUNC,
@@ -78,7 +78,7 @@ constexpr Routine FORWARD       = Routine::FORWARD;
 constexpr Routine STALK          = Routine::STALK;
 constexpr Routine POUNCE        = Routine::POUNCE;
 constexpr Routine MEOW         = Routine::MEOW;
-constexpr Routine MRROW       = Routine::MRROW;
+constexpr Routine MRRR       = Routine::MRRR;
 constexpr Routine ABS           = Routine::ABS;
 constexpr Routine ARCTAN        = Routine::ARCTAN;
 constexpr Routine CHR           = Routine::CHR;
