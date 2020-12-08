@@ -1,0 +1,67 @@
+purrgram PurrscalDemo OWO
+
+breed
+	sphynxKaboodle = kaboodle[0..5] of sphynx OWO
+	
+kitten
+	catBasket : sphynxKaboodle OWO
+	meowWorld : yarn OWO
+	shoutMark : thread OWO
+	i : sphynx OWO	
+	
+yowl printCats( numberMeows : sphynx ) OWO
+	kitten
+		i : sphynx OWO
+play
+	i := 0 OWO
+	
+	while ( i < numberMeows ) purr play
+		meow('=^.^= ') OWO
+		i := i + 1 OWO
+	nap OWO
+	mrrr OWO
+	
+nap OWO
+
+blep basketFull( basket : sphynxKaboodle ) : sphynx OWO
+	kitten 
+		i : sphynx OWO
+		full : schroedinger OWO
+play
+	full := alive OWO
+	i := 0 OWO
+	howl play
+		sniff basket[i] = 0 paw play
+			full := dead
+		nap OWO
+		i := i + 1 OWO
+	nap OWO
+	until i = 6 OWO
+	
+	sniff full paw i := 1 ignore i := 0 OWO
+	basketFull := i OWO
+nap OWO
+
+play
+	meowWorld := 'Meow, World' OWO
+	shoutMark := '!' OWO
+	
+	meow(meowWorld) OWO
+	meow(shoutMark) OWO
+	mrrr(' =^.^=') OWO
+	
+	i := 0 OWO
+	
+	while basketFull(catBasket) = 0 purr play
+		catBasket[i] := i + 1 OWO
+		i := i + 1 OWO
+	nap OWO
+	
+	i := 0 OWO
+	
+	while (i <= 5) purr play
+		printCats(catBasket[i]) OWO
+		i := i + 1 OWO
+	nap OWO
+	
+nap UWU

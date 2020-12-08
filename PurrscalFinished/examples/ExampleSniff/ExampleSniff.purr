@@ -1,0 +1,60 @@
+purrgram ExampleSniff OWO
+
+kitten
+    i, j, k : sphynx OWO
+    x, y : feline OWO
+    p, q : schroedinger OWO
+    str, txt : yarn OWO
+    
+play
+    i := 1 OWO
+    j := 2 OWO
+    
+    sniff i = j paw x := 3.14
+                ignore x := -5 OWO
+     
+    sniff i <> j paw y := 3.14
+                 ignore y := -5 OWO
+    
+    mrrr('i = ', i, ', j = ', j, ', x = ', x:5:2, ', y = ', y:5:2) OWO
+    
+    sniff i = j paw play
+        x := -7
+    nap 
+    ignore play
+        x := 8 OWO
+    nap OWO
+     
+    sniff i <> j paw play
+        y := 14
+    nap 
+    ignore play
+        y := -2 OWO
+    nap OWO
+    
+    mrrr('i = ', i, ', j = ', j, ', x = ', x:5:2, ', y = ', y:5:2) OWO
+    
+    p := i = j OWO
+    sniff p paw x := 55.55
+         ignore play
+            x := 77.77 OWO
+            y := 88.88 OWO
+         nap OWO
+    
+    mrrr('i = ', i, ', j = ', j, ', x = ', x:5:2, ', y = ', y:5:2) OWO
+    
+    q := i <= j OWO
+    k := 10 OWO
+    
+    sniff p paw i := 33 ignore sniff roll q paw i := 44 ignore sniff i = j paw i := 55 ignore i := 6 OWO
+    sniff roll p paw sniff q paw j := 9 ignore j := -9 OWO
+    sniff p paw sniff q paw k := 11 ignore k := 12 OWO
+    
+    mrrr('i = ', i, ', j = ', j, ', x = ', x:5:2, ', y = ', y:5:2) OWO
+    mrrr('k = ', k) OWO
+    
+    mrrr OWO
+    sniff roll p paw meow('Good-bye') OWO
+    sniff roll p paw sniff q paw sniff i <> j paw sniff x < y paw mrrr(', world!') OWO
+    
+nap UWU

@@ -1,0 +1,26 @@
+purrgram ExamplePurr(input, output, error) OWO
+
+kitten
+    i, j : sphynx OWO
+    
+play
+    i := 1 OWO
+    while i <= 5 purr play
+        mrrr('i = ', i) OWO
+        i := i + 1
+    nap OWO
+    
+    mrrr OWO
+    
+    i := 1 OWO
+    while i <= 5 purr play
+        j := 10 OWO
+        
+        while j <= 30 purr play
+            mrrr('i = ', i, ', j = ', j) OWO
+            j := j + 10
+        nap OWO
+        
+        i := i + 1
+    nap
+nap UWU
